@@ -1,59 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from 'zustand';
-import { Product } from '@/types/product';
+import { Product, ContentSection, GalleryData, NormalContentData, TextContentData, VideoData, RichTextData } from '@/types/product';
 
 interface ProductState {
     product: Product;
     setProduct: (product: Product) => void;
-    updateField: (field: keyof Product, value: any) => void;
-    updateBulletPoint: (index: number, value: string) => void;
-    addBulletPoint: () => void;
-    removeBulletPoint: (index: number) => void;
-    updateNumberedPoint: (index: number, value: string) => void;
-    addNumberedPoint: () => void;
-    removeNumberedPoint: (index: number) => void;
+    updateField: (field: keyof Omit<Product, 'sections'>, value: any) => void;
+
+    // Section Management
+    addSection: (type: ContentSection['type'], data?: any) => void;
+    removeSection: (sectionId: string) => void;
+    updateSection: (sectionId: string, data: any) => void;
+    reorderSections: (sections: ContentSection[]) => void;
+    moveSectionUp: (sectionId: string) => void;
+    moveSectionDown: (sectionId: string) => void;
+
+    // Section Data Updates
+    updateGalleryData: (sectionId: string, data: Partial<GalleryData>) => void;
+    updateNormalContentData: (sectionId: string, data: Partial<NormalContentData>) => void;
+    updateTextContentData: (sectionId: string, data: Partial<TextContentData>) => void;
+    updateVideoData: (sectionId: string, data: Partial<VideoData>) => void;
+    updateRichTextData: (sectionId: string, data: Partial<RichTextData>) => void;
 }
 
 const initialProduct: Product = {
-    // Product Header Fields
     title: '',
     category: '',
-
-    // Product Card Fields
     cardDescription: '',
     thumbnail: '',
-
-    // Product Main Content Fields
-    imageUrl: '',
-    description: '',
-    imageAlt: '',
-    additionalImages: [],
-    fullWidthImage: '',
-    fullWidthImageAlt: '',
-    fullWidthDescription: '',
-
-    // Video Component Fields
-    videoUrl: '',
-
-    // Title 1 Component Fields
-    title1: '',
-    description1: '',
-
-    // Title 2 Component Fields
-    title2: '',
-    description2: '',
-    imageUrl2: '',
-    imageAlt2: '',
-
-    // Title 3 Component Fields
-    title3: '',
-    description3: '',
-
-    // Product Links Fields
-    bulletPoints: [],
-    numberedPoints: [],
-
-    // SEO Fields
+    sections: [],
     metaTitle: '',
     metaKeywords: '',
     metaDescription: '',
@@ -64,7 +39,7 @@ const initialProduct: Product = {
 export const useProductStore = create<ProductState>((set) => ({
     product: initialProduct,
 
-    setProduct: (product: Product) => set({ product }),
+    setProduct: (product: Product) => set({ product: { ...product, sections: product.sections || [] } }),
 
     updateField: (field, value) => set((state) => ({
         product: {
@@ -74,65 +49,215 @@ export const useProductStore = create<ProductState>((set) => ({
         }
     })),
 
-    updateBulletPoint: (index, value) => set((state) => {
-        const newBulletPoints = [...state.product.bulletPoints];
-        newBulletPoints[index] = value;
-        return {
-            product: {
-                ...state.product,
-                bulletPoints: newBulletPoints,
-                updatedAt: Date.now()
-            }
-        };
-    }),
-
-    addBulletPoint: () => set((state) => ({
-        product: {
-            ...state.product,
-            bulletPoints: [...state.product.bulletPoints, ''],
+    addSection: (type, data = {}) => set((state) => {
+        const currentSections = state.product.sections || [];
+        const newSection: ContentSection = {
+            id: `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            type,
+            order: currentSections.length,
+            data: getDefaultDataForType(type, data),
+            createdAt: Date.now(),
             updatedAt: Date.now()
-        }
-    })),
+        };
 
-    removeBulletPoint: (index) => set((state) => {
-        const newBulletPoints = state.product.bulletPoints.filter((_, i) => i !== index);
         return {
             product: {
                 ...state.product,
-                bulletPoints: newBulletPoints,
+                sections: [...currentSections, newSection],
                 updatedAt: Date.now()
             }
         };
     }),
 
-    updateNumberedPoint: (index, value) => set((state) => {
-        const newNumberedPoints = [...state.product.numberedPoints];
-        newNumberedPoints[index] = value;
-        return {
-            product: {
-                ...state.product,
-                numberedPoints: newNumberedPoints,
-                updatedAt: Date.now()
-            }
-        };
-    }),
-
-    addNumberedPoint: () => set((state) => ({
-        product: {
-            ...state.product,
-            numberedPoints: [...state.product.numberedPoints, ''],
+    removeSection: (sectionId) => set((state) => {
+        const currentSections = state.product.sections || [];
+        const filteredSections = currentSections.filter(s => s.id !== sectionId);
+        // Reorder remaining sections
+        const reorderedSections = filteredSections.map((section, index) => ({
+            ...section,
+            order: index,
             updatedAt: Date.now()
-        }
-    })),
+        }));
 
-    removeNumberedPoint: (index) => set((state) => {
-        const newNumberedPoints = state.product.numberedPoints.filter((_, i) => i !== index);
         return {
             product: {
                 ...state.product,
-                numberedPoints: newNumberedPoints,
+                sections: reorderedSections,
                 updatedAt: Date.now()
+            }
+        };
+    }),
+
+    updateSection: (sectionId, data) => set((state) => {
+        const currentSections = state.product.sections || [];
+        return {
+            product: {
+                ...state.product,
+                sections: currentSections.map(section =>
+                    section.id === sectionId
+                        ? { ...section, data: { ...section.data, ...data }, updatedAt: Date.now() }
+                        : section
+                ),
+                updatedAt: Date.now()
+            }
+        };
+    }),
+
+    reorderSections: (sections) => set((state) => {
+        const reorderedSections = (sections || []).map((section, index) => ({
+            ...section,
+            order: index,
+            updatedAt: Date.now()
+        }));
+
+        return {
+            product: {
+                ...state.product,
+                sections: reorderedSections,
+                updatedAt: Date.now()
+            }
+        };
+    }),
+
+    moveSectionUp: (sectionId) => set((state) => {
+        const currentSections = state.product.sections || [];
+        const sections = [...currentSections].sort((a, b) => a.order - b.order);
+        const currentIndex = sections.findIndex(s => s.id === sectionId);
+
+        if (currentIndex > 0) {
+            [sections[currentIndex], sections[currentIndex - 1]] = [sections[currentIndex - 1], sections[currentIndex]];
+            const reorderedSections = sections.map((section, index) => ({
+                ...section,
+                order: index,
+                updatedAt: Date.now()
+            }));
+
+            return {
+                product: {
+                    ...state.product,
+                    sections: reorderedSections,
+                    updatedAt: Date.now()
+                }
+            };
+        }
+
+        return state;
+    }),
+
+    moveSectionDown: (sectionId) => set((state) => {
+        const currentSections = state.product.sections || [];
+        const sections = [...currentSections].sort((a, b) => a.order - b.order);
+        const currentIndex = sections.findIndex(s => s.id === sectionId);
+
+        if (currentIndex < sections.length - 1) {
+            [sections[currentIndex], sections[currentIndex + 1]] = [sections[currentIndex + 1], sections[currentIndex]];
+            const reorderedSections = sections.map((section, index) => ({
+                ...section,
+                order: index,
+                updatedAt: Date.now()
+            }));
+
+            return {
+                product: {
+                    ...state.product,
+                    sections: reorderedSections,
+                    updatedAt: Date.now()
+                }
+            };
+        }
+
+        return state;
+    }),
+
+    // Specific section data update methods
+    updateGalleryData: (sectionId, data) => set((state) => {
+        const currentSections = state.product.sections || [];
+        return {
+            product: {
+                ...state.product,
+                sections: currentSections.map(section =>
+                    section.id === sectionId && section.type === 'gallery'
+                        ? { ...section, data: { ...section.data, ...data }, updatedAt: Date.now() }
+                        : section
+                ),
+                updatedAt: Date.now()
+            }
+        };
+    }),
+
+    updateNormalContentData: (sectionId, data) => set((state) => {
+        const currentSections = state.product.sections || [];
+        console.log("data", data);
+        return {
+            product: {
+                ...state.product,
+                sections: currentSections.map(section =>
+                    section.id === sectionId && section.type === 'normal'
+                        ? {
+                            ...section,
+                            data: {
+                                ...section.data,
+                                ...data
+                            },
+                        }
+                        : section
+                ),
+            }
+        };
+    }),
+
+    updateTextContentData: (sectionId, data) => set((state) => {
+        const currentSections = state.product.sections || [];
+        return {
+            product: {
+                ...state.product,
+                sections: currentSections.map(section =>
+                    section.id === sectionId && section.type === 'text-content'
+                        ? { ...section, data: { ...section.data, ...data } }
+                        : section
+                ),
+            }
+        };
+    }),
+
+    updateVideoData: (sectionId, data) => set((state) => {
+        const currentSections = state.product.sections || [];
+        return {
+            product: {
+                ...state.product,
+                sections: currentSections.map(section =>
+                    section.id === sectionId && section.type === 'video'
+                        ? { ...section, data: { ...section.data, ...data }, updatedAt: Date.now() }
+                        : section
+                ),
+            }
+        };
+    }),
+
+    updateRichTextData: (sectionId, data) => set((state) => {
+        const currentSections = state.product.sections || [];
+        return {
+            product: {
+                ...state.product,
+                sections: currentSections.map(section =>
+                    section.id === sectionId && section.type === 'rich-text'
+                        ? { ...section, data: { ...section.data, ...data }, updatedAt: Date.now() }
+                        : section
+                ),
             }
         };
     }),
 }));
+
+// Helper function to get default data for each section type
+function getDefaultDataForType(type: ContentSection['type'], initialData: any = {}) {
+    const defaults: Record<ContentSection['type'], any> = {
+        gallery: { rows: [] },
+        normal: { content: '', imagePosition: '', imageUrl: '', imageAlt: '' },
+        'text-content': { title: '', content: '', alignment: 'left' },
+        video: { url: '', autoplay: false },
+        'rich-text': { content: '' }
+    };
+
+    return { ...defaults[type], ...initialData };
+}

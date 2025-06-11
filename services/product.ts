@@ -52,11 +52,6 @@ export const getAllProducts = async (options?: {
         querySnapshot.forEach((doc) => {
             const data = doc.data() as Omit<Product, 'id'>;
 
-            // Parse additional images if they're stored as a string
-            if (typeof data.additionalImages === 'string') {
-                data.additionalImages = JSON.parse(data.additionalImages);
-            }
-
             products.push({ ...data, id: doc.id });
         });
 

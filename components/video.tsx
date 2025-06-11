@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { useProductStore } from "@/stores/product-detail";
 
 export default function Video() {
-  const { product, updateField } = useProductStore();
-  const { videoUrl = "" } = product;
+  const { updateField } = useProductStore();
+  // const { videoUrl = "" } = product;
+  const videoUrl = "";
 
   const handleChange = (field: string, value: string) => {
     updateField(field as any, value);

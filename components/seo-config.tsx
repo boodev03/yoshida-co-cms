@@ -210,7 +210,7 @@ export default function SeoConfig({
             </div>
           </div>
 
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <Label htmlFor="ogTwitter">
               Twitter Image{" "}
               <span className="text-xs text-muted-foreground">
@@ -256,7 +256,7 @@ export default function SeoConfig({
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
 
         <DialogFooter>

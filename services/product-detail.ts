@@ -15,7 +15,6 @@ export const saveProduct = async (product: Product): Promise<string> => {
             ...product,
             updatedAt: Date.now(),
             createdAt: product.createdAt || Date.now(),
-            additionalImages: JSON.stringify(product?.additionalImages || []),
         };
 
         if (product.id) {
@@ -47,10 +46,6 @@ export const getProduct = async (id: string): Promise<Product | null> => {
 
         if (productSnap.exists()) {
             const data = productSnap.data() as Product;
-            // Parse additional images if they're stored as a string
-            if (typeof data.additionalImages === 'string') {
-                data.additionalImages = JSON.parse(data.additionalImages);
-            }
             return { ...data, id: productSnap.id };
         } else {
             return null;

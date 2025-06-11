@@ -1,42 +1,67 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface ContentSection {
+    id: string;
+    type: 'gallery' | 'normal' | 'text-content' | 'video' | 'rich-text';
+    order: number;
+    data: any; // Specific data for each section type
+    createdAt: number;
+    updatedAt: number;
+}
+
+export interface GalleryData {
+    rows: Array<{
+        id: string;
+        images: Array<{
+            id: string;
+            src: string;
+            alt: string;
+        }>;
+        imagesPerRow: number;
+    }>;
+}
+
+export interface NormalContentData {
+    content: string;
+    imageUrl?: string;
+    imageAlt?: string;
+    imagePosition?: 'left' | 'right' | 'top' | 'bottom';
+}
+
+export interface TextContentData {
+    title: string;
+    content: string;
+    titleType?: 'h1' | 'h2' | 'h3';
+    image?: {
+        src: string;
+        alt: string;
+        file?: File;
+    };
+    imagePosition?: 'left' | 'right';
+}
+
+export interface VideoData {
+    url: string;
+    title?: string;
+    description?: string;
+    thumbnail?: string;
+    autoplay?: boolean;
+}
+
+export interface RichTextData {
+    content: string; // TipTap HTML content
+}
+
 export interface Product {
     id?: string;
-    // Product Header Fields
+
+    // Basic Product Info
     title: string;
     category: string;
-
-    // Product Card Fields
     cardDescription: string;
     thumbnail: string;
 
-    // Product Main Content Fields
-    imageUrl: string;
-    description: string;
-    imageAlt: string;
-    additionalImages: Array<{ src: string; alt: string }>;
-    fullWidthImage: string;
-    fullWidthImageAlt: string;
-    fullWidthDescription: string;
-
-    // Video Component Fields
-    videoUrl: string;
-
-    // Title 1 Component Fields
-    title1: string;
-    description1: string;
-
-    // Title 2 Component Fields
-    title2: string;
-    description2: string;
-    imageUrl2: string;
-    imageAlt2: string;
-
-    // Title 3 Component Fields
-    title3: string;
-    description3: string;
-
-    // Product Links Fields
-    bulletPoints: string[];
-    numberedPoints: string[];
+    // Flexible Content Sections (ordered)
+    sections: ContentSection[];
 
     // SEO Fields
     metaTitle: string;
@@ -45,7 +70,7 @@ export interface Product {
     ogImage: string;
     ogTwitter: string;
 
-    // Timestamps for database
+    // Timestamps
     createdAt?: number;
     updatedAt?: number;
 }
