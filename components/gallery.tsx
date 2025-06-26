@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { uploadFile } from "@/services/supabase-upload";
 import { useProductStore } from "@/stores/product-detail";
 import { ImagePlus, Trash2, Upload } from "lucide-react";
 import { useCallback, useMemo } from "react";
@@ -86,24 +87,19 @@ export default function Gallery({ sectionId, className }: GalleryProps) {
   );
 
   const handleFileUpload = useCallback(
-    (rowId: string, files: FileList | null, imageId?: string) => {
+    async (rowId: string, files: FileList | null, imageId?: string) => {
       if (!files || !sectionId) return;
 
-      // Convert files to base64
-      const processFiles = async () => {
+      try {
+        // Upload files to Supabase and get URLs
         const newImages = await Promise.all(
           Array.from(files).map(async (file) => {
-            return new Promise<GalleryImage>((resolve) => {
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                resolve({
-                  id: imageId || `img-${Date.now()}-${Math.random()}`,
-                  src: e.target?.result as string,
-                  alt: file.name,
-                });
-              };
-              reader.readAsDataURL(file);
-            });
+            const { publicUrl } = await uploadFile(file);
+            return {
+              id: imageId || `img-${Date.now()}-${Math.random()}`,
+              src: publicUrl,
+              alt: file.name,
+            };
           })
         );
 
@@ -134,9 +130,9 @@ export default function Gallery({ sectionId, className }: GalleryProps) {
         updateGalleryData(sectionId, {
           rows: updatedRows,
         });
-      };
-
-      processFiles();
+      } catch (error) {
+        console.error("Error uploading images:", error);
+      }
     },
     [sectionId, rows, updateGalleryData]
   );
@@ -246,7 +242,7 @@ export default function Gallery({ sectionId, className }: GalleryProps) {
                   <div key={image.id} className="relative group">
                     {image.src ? (
                       <>
-                        <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        <div className="aspect-square rounded-sm overflow-hidden bg-gray-100">
                           <img
                             src={image.src}
                             alt={image.alt}
@@ -269,7 +265,7 @@ export default function Gallery({ sectionId, className }: GalleryProps) {
                       </>
                     ) : (
                       <div className="aspect-square">
-                        <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-300 rounded-sm cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
                           <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <Upload className="w-8 h-8 mb-2 text-gray-400" />
                             <p className="mb-2 text-sm text-gray-500">
@@ -310,7 +306,7 @@ export default function Gallery({ sectionId, className }: GalleryProps) {
                     key={`upload-${row.id}-${index}`}
                     className="aspect-square"
                   >
-                    <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <label className="flex flex-col items-center justify-center w-full h-full border-2 border-dashed border-gray-300 rounded-sm cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="w-8 h-8 mb-2 text-gray-400" />
                         <p className="mb-2 text-sm text-gray-500">

@@ -68,7 +68,7 @@ export default function ProductDetail() {
       case "normal":
         return <NormalContent key={section.id} sectionId={section.id} />;
       case "text-content":
-        return <TextContent sectionId={section.id} />;
+        return <TextContent sectionId={section.id} key={section.id} />;
       case "video":
         return <Video />;
       default:

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
@@ -13,9 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { uploadFile } from "@/services/supabase-upload";
 import { useProductStore } from "@/stores/product-detail";
 import { ArrowLeftRight, Trash2, Upload } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useMemo } from "react";
 import { TextEditor } from "./text-editor";
 import { Input } from "./ui/input";
 
@@ -29,7 +29,6 @@ export default function TextContent({
   className,
 }: TextContentProps) {
   const { product, updateTextContentData } = useProductStore();
-  const objectUrlsRef = useRef<Set<string>>(new Set());
 
   // Find the current section data
   const currentSection = useMemo(() => {
@@ -45,21 +44,6 @@ export default function TextContent({
   const titleType = data?.titleType || "h1";
   const image = data?.image;
   const imagePosition = data?.imagePosition;
-
-  // Cleanup object URLs when component unmounts or images are removed
-  useEffect(() => {
-    return () => {
-      // Cleanup all object URLs when component unmounts
-      objectUrlsRef.current.forEach((url) => {
-        try {
-          URL.revokeObjectURL(url);
-        } catch {
-          // Ignore errors if URL was already revoked
-        }
-      });
-      objectUrlsRef.current.clear();
-    };
-  }, []);
 
   const handleTitleChange = (newTitle: string) => {
     updateTextContentData(sectionId, {
@@ -80,39 +64,24 @@ export default function TextContent({
   };
 
   const handleImageUpload = useCallback(
-    (file: File) => {
-      // Create object URL for immediate display
-      const objectUrl = URL.createObjectURL(file);
-      objectUrlsRef.current.add(objectUrl);
-
-      // Also convert to base64 for storage
-      const reader = new FileReader();
-      reader.onload = (e) => {
+    async (file: File) => {
+      try {
+        const { publicUrl } = await uploadFile(file);
         const newImage = {
-          src: e.target?.result as string, // base64 for storage
+          src: publicUrl,
           alt: file.name,
-          objectUrl: objectUrl, // object URL for immediate display
         };
         updateTextContentData(sectionId, {
           image: newImage,
         });
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
     },
     [sectionId, updateTextContentData]
   );
 
   const handleImageRemove = useCallback(() => {
-    // Cleanup object URL if it exists
-    if (image?.objectUrl && objectUrlsRef.current.has(image.objectUrl)) {
-      try {
-        URL.revokeObjectURL(image.objectUrl);
-        objectUrlsRef.current.delete(image.objectUrl);
-      } catch {
-        // Ignore errors if URL was already revoked
-      }
-    }
-
     updateTextContentData(sectionId, {
       image: {
         src: "",
@@ -120,7 +89,7 @@ export default function TextContent({
       },
       imagePosition: "" as "left" | "right",
     });
-  }, [sectionId, updateTextContentData, image]);
+  }, [sectionId, updateTextContentData]);
 
   const handleImagePositionChange = (position: "left" | "right") => {
     updateTextContentData(sectionId, {
@@ -132,9 +101,6 @@ export default function TextContent({
     const newPosition = imagePosition === "left" ? "right" : "left";
     handleImagePositionChange(newPosition);
   };
-
-  // Use object URL for display if available, otherwise use base64
-  const displayImageSrc = image?.objectUrl || image?.src;
 
   return (
     <Card className={cn("p-4", className)}>
@@ -166,13 +132,13 @@ export default function TextContent({
                   </Button>
                 </div>
               </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-sm p-4">
                 <div className="flex flex-col items-center justify-center">
-                  {displayImageSrc ? (
+                  {image?.src ? (
                     <div className="relative group w-full">
-                      <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                      <div className="aspect-video rounded-sm overflow-hidden bg-gray-100">
                         <img
-                          src={displayImageSrc}
+                          src={image.src}
                           alt={image?.alt}
                           className="w-full h-full object-cover"
                           onError={(e) => {
@@ -314,13 +280,13 @@ export default function TextContent({
                   </Button>
                 </div>
               </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-sm p-4">
                 <div className="flex flex-col items-center justify-center">
-                  {displayImageSrc ? (
+                  {image?.src ? (
                     <div className="relative group w-full">
-                      <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                      <div className="aspect-video rounded-sm overflow-hidden bg-gray-100">
                         <img
-                          src={displayImageSrc}
+                          src={image.src}
                           alt={image?.alt}
                           className="w-full h-full object-cover"
                           onError={(e) => {

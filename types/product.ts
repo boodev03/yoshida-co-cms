@@ -42,9 +42,6 @@ export interface TextContentData {
 export interface VideoData {
     url: string;
     title?: string;
-    description?: string;
-    thumbnail?: string;
-    autoplay?: boolean;
 }
 
 export interface RichTextData {

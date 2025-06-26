@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
+import { uploadFile } from "@/services/supabase-upload";
+import { useState } from "react";
 import { toast } from "sonner";
 
 interface SeoConfigProps {
@@ -69,31 +70,18 @@ export default function SeoConfig({
     }
   };
 
-  const convertToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        resolve(result);
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const handleFileUploadAsBase64 = async (
+  const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     imageField: keyof typeof seoData
   ) => {
     const file = e.target.files?.[0];
     if (file) {
       try {
-        // Convert and store as base64
-        const base64Image = await convertToBase64(file);
-        handleChange(imageField, base64Image);
+        const { publicUrl } = await uploadFile(file);
+        handleChange(imageField, publicUrl);
       } catch (error) {
-        console.error("Error converting image to base64:", error);
-        toast.error("Failed to process image");
+        console.error("Error uploading image:", error);
+        toast.error("Failed to upload image");
       }
     }
   };
@@ -180,19 +168,19 @@ export default function SeoConfig({
                     className="object-contain h-full w-full"
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <label className="cursor-pointer bg-white text-black py-1 px-3 rounded text-sm">
+                    <label className="cursor-pointer bg-white text-black py-1 px-3 rounded-sm text-sm">
                       Update Image
                       <Input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => handleFileUploadAsBase64(e, "ogImage")}
+                        onChange={(e) => handleFileUpload(e, "ogImage")}
                         className="hidden"
                       />
                     </label>
                   </div>
                 </>
               ) : (
-                <div className="h-full w-full flex items-center justify-center border border-dashed border-gray-300 rounded-md">
+                <div className="h-full w-full flex items-center justify-center border border-dashed border-gray-300 rounded-sm">
                   <label className="cursor-pointer text-gray-400 flex flex-col items-center">
                     <span>Click to upload Facebook/LinkedIn image</span>
                     <span className="text-xs text-muted-foreground mt-1">
@@ -201,7 +189,7 @@ export default function SeoConfig({
                     <Input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleFileUploadAsBase64(e, "ogImage")}
+                      onChange={(e) => handleFileUpload(e, "ogImage")}
                       className="hidden"
                     />
                   </label>
@@ -232,7 +220,7 @@ export default function SeoConfig({
                         type="file"
                         accept="image/*"
                         onChange={(e) =>
-                          handleFileUploadAsBase64(e, "ogTwitter")
+                          handleFileUpload(e, "ogTwitter")
                         }
                         className="hidden"
                       />
@@ -249,7 +237,7 @@ export default function SeoConfig({
                     <Input
                       type="file"
                       accept="image/*"
-                      onChange={(e) => handleFileUploadAsBase64(e, "ogTwitter")}
+                      onChange={(e) => handleFileUpload(e, "ogTwitter")}
                       className="hidden"
                     />
                   </label>

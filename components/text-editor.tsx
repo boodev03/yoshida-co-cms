@@ -8,6 +8,129 @@ interface TextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
 }
+
+// Sanitize HTML content to remove unwanted attributes like Figma metadata
+const sanitizeHTML = (html: string): string => {
+  if (!html || typeof html !== "string") return "";
+
+  // Create a temporary div to parse the HTML
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+
+  // Function to recursively clean elements
+  const cleanElement = (element: Element): void => {
+    // Remove unwanted attributes, keeping only basic formatting attributes
+    const allowedAttributes = ["href", "target", "src", "alt", "title"];
+    const attributesToRemove: string[] = [];
+
+    // Collect attributes to remove
+    for (let i = 0; i < element.attributes.length; i++) {
+      const attr = element.attributes[i];
+      if (!allowedAttributes.includes(attr.name)) {
+        attributesToRemove.push(attr.name);
+      }
+    }
+
+    // Remove unwanted attributes
+    attributesToRemove.forEach((attrName) => {
+      element.removeAttribute(attrName);
+    });
+
+    // Recursively clean child elements
+    Array.from(element.children).forEach((child) => {
+      cleanElement(child);
+    });
+  };
+
+  // Function to unwrap unnecessary elements
+  const unwrapElement = (element: Element): void => {
+    const parent = element.parentNode;
+    if (!parent) return;
+
+    // Move all child nodes to the parent
+    while (element.firstChild) {
+      parent.insertBefore(element.firstChild, element);
+    }
+
+    // Remove the empty element
+    parent.removeChild(element);
+  };
+
+  // Function to check if an element should be unwrapped
+  const shouldUnwrap = (element: Element): boolean => {
+    const tagName = element.tagName.toLowerCase();
+
+    // Unwrap empty spans and divs
+    if (
+      (tagName === "span" || tagName === "div") &&
+      element.attributes.length === 0
+    ) {
+      // Check if it's just a wrapper with no meaningful formatting
+      const hasFormattingChildren = Array.from(element.children).some(
+        (child) => {
+          const childTag = child.tagName.toLowerCase();
+          return [
+            "b",
+            "strong",
+            "i",
+            "em",
+            "u",
+            "a",
+            "ul",
+            "ol",
+            "li",
+          ].includes(childTag);
+        }
+      );
+
+      // If it's just a wrapper div/span with plain text or other wrapper elements, unwrap it
+      if (!hasFormattingChildren) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  // Clean all child elements first
+  Array.from(tempDiv.children).forEach((child) => {
+    cleanElement(child);
+  });
+
+  // Then unwrap unnecessary elements (do this multiple times to handle nested wrappers)
+  let changed = true;
+  let iterations = 0;
+  while (changed && iterations < 10) {
+    // Prevent infinite loops
+    changed = false;
+    iterations++;
+
+    const elements = Array.from(tempDiv.querySelectorAll("span, div"));
+    elements.forEach((element) => {
+      if (shouldUnwrap(element)) {
+        unwrapElement(element);
+        changed = true;
+      }
+    });
+  }
+
+  // Clean up extra whitespace and normalize line breaks
+  let result = tempDiv.innerHTML;
+
+  // Replace multiple consecutive <br> tags with paragraph breaks
+  result = result.replace(/(<br\s*\/?>){2,}/gi, "</p><p>");
+
+  // Wrap content in paragraphs if it's not already wrapped
+  if (result && !result.match(/^<(p|div|h[1-6]|ul|ol)/i)) {
+    result = `<p>${result}</p>`;
+  }
+
+  // Clean up empty paragraphs
+  result = result.replace(/<p><\/p>/gi, "");
+
+  return result;
+};
+
 export function TextEditor({ value, onChange, placeholder }: TextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -15,13 +138,31 @@ export function TextEditor({ value, onChange, placeholder }: TextEditorProps) {
   const execCommand = (command: string, value?: string) => {
     document.execCommand(command, false, value);
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+      const sanitizedContent = sanitizeHTML(editorRef.current.innerHTML);
+      onChange(sanitizedContent);
     }
   };
 
   const handleInput = () => {
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+      const sanitizedContent = sanitizeHTML(editorRef.current.innerHTML);
+      onChange(sanitizedContent);
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+
+    // Get plain text from clipboard
+    const text = e.clipboardData.getData("text/plain");
+
+    // Insert plain text at cursor position
+    document.execCommand("insertText", false, text);
+
+    // Trigger content update
+    if (editorRef.current) {
+      const sanitizedContent = sanitizeHTML(editorRef.current.innerHTML);
+      onChange(sanitizedContent);
     }
   };
 
@@ -75,6 +216,7 @@ export function TextEditor({ value, onChange, placeholder }: TextEditorProps) {
         ref={editorRef}
         contentEditable
         onInput={handleInput}
+        onPaste={handlePaste}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         className={cn(

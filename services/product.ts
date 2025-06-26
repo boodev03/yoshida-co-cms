@@ -1,6 +1,6 @@
-import { getFirestore, collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 import { app } from "@/configs/firebase.config";
 import { Product } from "@/types/product";
+import { collection, deleteDoc, doc, getDocs, getFirestore, limit, orderBy, query, where } from "firebase/firestore";
 
 const db = getFirestore(app);
 
@@ -58,6 +58,21 @@ export const getAllProducts = async (options?: {
         return products;
     } catch (error) {
         console.error("Error fetching products:", error);
+        throw error;
+    }
+};
+
+/**
+ * Deletes a product from the Firestore database by ID
+ * @param productId The ID of the product to delete
+ * @returns Promise that resolves when the product is deleted
+ */
+export const deleteProduct = async (productId: string): Promise<void> => {
+    try {
+        const productRef = doc(db, "products", productId);
+        await deleteDoc(productRef);
+    } catch (error) {
+        console.error("Error deleting product:", error);
         throw error;
     }
 };

@@ -6,10 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Category as CategoryType } from "@/services/category";
+import { uploadFile } from "@/services/supabase-upload";
 import { useProductStore } from "@/stores/product-detail";
 import { Trash2, Upload } from "lucide-react";
 import Category from "./category";
-import { Category as CategoryType } from "@/services/category";
 
 interface ProductInformationProps {
   className?: string;
@@ -26,12 +27,13 @@ export default function ProductInformation({
 }: ProductInformationProps) {
   const { product, updateField } = useProductStore();
 
-  const handleImageUpload = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      updateField("thumbnail", e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+  const handleImageUpload = async (file: File) => {
+    try {
+      const { publicUrl } = await uploadFile(file);
+      updateField("thumbnail", publicUrl);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
   };
 
   const removeImage = () => {
@@ -84,7 +86,7 @@ export default function ProductInformation({
               <Label className="text-sm font-medium">画像</Label>
               {product.thumbnail ? (
                 <div className="relative group">
-                  <div className="aspect-video rounded-lg overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300">
+                  <div className="aspect-video rounded-sm overflow-hidden bg-gray-100 border-2 border-dashed border-gray-300">
                     <img
                       src={product.thumbnail}
                       alt={product.title}
@@ -101,7 +103,7 @@ export default function ProductInformation({
                   </Button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-300 rounded-sm cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <Upload className="w-8 h-8 mb-2 text-gray-400" />
                     <p className="mb-2 text-sm text-gray-500">

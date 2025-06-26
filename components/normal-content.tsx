@@ -12,11 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { uploadFile } from "@/services/supabase-upload";
 import { useProductStore } from "@/stores/product-detail";
+import { NormalContentData } from "@/types/product";
 import { ArrowLeftRight, Trash2, Upload } from "lucide-react";
 import { useMemo } from "react";
 import { TextEditor } from "./text-editor";
-import { NormalContentData } from "@/types/product";
 
 interface NormalContentProps {
   sectionId?: string;
@@ -43,21 +44,17 @@ export default function NormalContent({ sectionId }: NormalContentProps) {
     });
   };
 
-  const handleImageUpload = (file: File) => {
+  const handleImageUpload = async (file: File) => {
     if (!sectionId) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const imageData = {
-        src: e.target?.result as string,
-        alt: file.name,
-        file,
-      };
+    try {
+      const { publicUrl } = await uploadFile(file);
       updateNormalContentData(sectionId, {
-        imageUrl: imageData.src,
-        imageAlt: imageData.alt,
+        imageUrl: publicUrl,
+        imageAlt: file.name,
       });
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
   };
 
   const handleImageRemove = () => {
@@ -111,11 +108,11 @@ export default function NormalContent({ sectionId }: NormalContentProps) {
                   </Button>
                 </div>
               </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-sm p-4">
                 <div className="flex flex-col items-center justify-center">
                   {imageUrl ? (
                     <div className="relative group w-full">
-                      <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                      <div className="aspect-video rounded-sm overflow-hidden bg-gray-100">
                         <img
                           src={imageUrl}
                           alt={imageAlt || ""}
@@ -203,11 +200,11 @@ export default function NormalContent({ sectionId }: NormalContentProps) {
                   </Button>
                 </div>
               </div>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-sm p-4">
                 <div className="flex flex-col items-center justify-center">
                   {imageUrl ? (
                     <div className="relative group w-full">
-                      <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                      <div className="aspect-video rounded-sm overflow-hidden bg-gray-100">
                         <img
                           src={imageUrl}
                           alt={imageAlt || ""}
