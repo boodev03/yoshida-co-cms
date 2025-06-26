@@ -1,3 +1,5 @@
+import Equipments from "@/modules/equipments/equipment";
+
 export default function page() {
-  return 1;
+  return <Equipments />;
 }
