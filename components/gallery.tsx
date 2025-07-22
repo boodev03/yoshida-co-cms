@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { uploadFile } from "@/services/supabase-upload";
+import { uploadFile } from "@/services/upload";
 import { useProductStore } from "@/stores/product-detail";
 import { ImagePlus, Trash2, Upload } from "lucide-react";
 import { useCallback, useMemo } from "react";
@@ -91,10 +91,13 @@ export default function Gallery({ sectionId, className }: GalleryProps) {
       if (!files || !sectionId) return;
 
       try {
-        // Upload files to Supabase and get URLs
+        // Upload files to R2 and get URLs
         const newImages = await Promise.all(
           Array.from(files).map(async (file) => {
-            const { publicUrl } = await uploadFile(file);
+            const publicUrl = await uploadFile({
+              file,
+              type: "image"
+            });
             return {
               id: imageId || `img-${Date.now()}-${Math.random()}`,
               src: publicUrl,

@@ -7,13 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Category as CategoryType } from "@/services/category";
-import { uploadFile } from "@/services/supabase-upload";
+import { uploadFile } from "@/services/upload";
 import { useProductStore } from "@/stores/product-detail";
 import { Trash2, Upload } from "lucide-react";
 import Category from "./category";
 
 interface ProductInformationProps {
   className?: string;
+  type: 'cases' | 'news' | 'equipments'; // Category type for this context
   categories: CategoryType[];
   onSaveCategory: (
     category: Omit<CategoryType, "id" | "createdAt" | "updatedAt">
@@ -22,6 +23,7 @@ interface ProductInformationProps {
 
 export default function ProductInformation({
   className,
+  type,
   categories,
   onSaveCategory,
 }: ProductInformationProps) {
@@ -29,7 +31,10 @@ export default function ProductInformation({
 
   const handleImageUpload = async (file: File) => {
     try {
-      const { publicUrl } = await uploadFile(file);
+      const publicUrl = await uploadFile({
+        file,
+        type: "image"
+      });
       updateField("thumbnail", publicUrl);
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -63,6 +68,7 @@ export default function ProductInformation({
             <Category
               value={product.category}
               onChange={(category) => updateField("category", category)}
+              type={type}
               categories={categories}
               onSaveCategory={onSaveCategory}
             />

@@ -1,7 +1,16 @@
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { app } from "@/configs/firebase.config";
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
-const storage = getStorage(app);
+// Cloudflare R2 configuration using environment variables
+const r2Client = new S3Client({
+    region: "auto",
+    endpoint: process.env.NEXT_PUBLIC_R2_ENDPOINT || `https://${process.env.NEXT_PUBLIC_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+        accessKeyId: process.env.NEXT_PUBLIC_R2_ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.NEXT_PUBLIC_R2_SECRET_ACCESS_KEY || "",
+    },
+});
+
+const BUCKET_NAME = process.env.NEXT_PUBLIC_R2_BUCKET_NAME || "";
 
 type UploadFileType = "image" | "video";
 
@@ -28,19 +37,43 @@ export const uploadFile = async ({
         // Create a unique filename
         const timestamp = Date.now();
         const uniqueFilename = `${timestamp}_${file.name}`;
+        const key = `${path}/${type}s/${uniqueFilename}`;
 
-        // Create storage reference
-        const storageRef = ref(storage, `${path}/${type}s/${uniqueFilename}`);
+        // Convert File to Buffer for R2 upload
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
 
-        // Upload file
-        const snapshot = await uploadBytes(storageRef, file);
+        // Upload to R2
+        const command = new PutObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: key,
+            Body: buffer,
+            ContentType: file.type,
+        });
 
-        // Get download URL
-        const downloadURL = await getDownloadURL(snapshot.ref);
+        await r2Client.send(command);
 
-        return downloadURL;
+        // Return the public URL
+        const publicUrl = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${key}`;
+        return publicUrl;
     } catch (error) {
         console.error("Error uploading file:", error);
+        throw error;
+    }
+};
+
+// Helper function to delete a file from R2
+export const deleteFile = async (key: string): Promise<boolean> => {
+    try {
+        const command = new DeleteObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: key,
+        });
+
+        await r2Client.send(command);
+        return true;
+    } catch (error) {
+        console.error("Error deleting file:", error);
         throw error;
     }
 };

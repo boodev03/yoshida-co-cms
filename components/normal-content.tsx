@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { uploadFile } from "@/services/supabase-upload";
+import { uploadFile } from "@/services/upload";
 import { useProductStore } from "@/stores/product-detail";
 import { NormalContentData } from "@/types/product";
 import { ArrowLeftRight, Trash2, Upload } from "lucide-react";
@@ -47,7 +47,10 @@ export default function NormalContent({ sectionId }: NormalContentProps) {
   const handleImageUpload = async (file: File) => {
     if (!sectionId) return;
     try {
-      const { publicUrl } = await uploadFile(file);
+      const publicUrl = await uploadFile({
+        file,
+        type: "image"
+      });
       updateNormalContentData(sectionId, {
         imageUrl: publicUrl,
         imageAlt: file.name,

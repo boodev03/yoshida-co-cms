@@ -256,7 +256,8 @@ function getDefaultDataForType(type: ContentSection['type'], initialData: any = 
         normal: { content: '', imagePosition: '', imageUrl: '', imageAlt: '' },
         'text-content': { title: '', content: '', alignment: 'left' },
         video: { url: '', autoplay: false },
-        'rich-text': { content: '' }
+        'rich-text': { content: '' },
+        links: { items: [] }
     };
 
     return { ...defaults[type], ...initialData };

@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { removeFile, uploadFile } from "@/services/supabase-upload";
+import { uploadFile, deleteFile } from "@/services/upload";
 import { useProductStore } from "@/stores/product-detail";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -35,8 +35,11 @@ export default function Video() {
         const blobUrl = URL.createObjectURL(file);
         handleChange("url", blobUrl);
 
-        // Upload file to Supabase
-        const { publicUrl } = await uploadFile(file);
+        // Upload file to R2
+        const publicUrl = await uploadFile({
+          file,
+          type: "video"
+        });
 
         // Remove old video from bucket if exists
         if (
@@ -45,7 +48,7 @@ export default function Video() {
           videoSection?.data?.path
         ) {
           try {
-            await removeFile(videoSection.data.path);
+            await deleteFile(videoSection.data.path);
           } catch (error) {
             console.warn("Failed to remove old video:", error);
           }

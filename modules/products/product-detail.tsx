@@ -1,6 +1,7 @@
 "use client";
 
 import Gallery from "@/components/gallery";
+import LinkComponent from "@/components/link";
 import NormalContent from "@/components/normal-content";
 import ProductInformation from "@/components/product-information";
 import SeoConfig from "@/components/seo-config";
@@ -19,7 +20,7 @@ import { Category, saveCategory } from "@/services/category";
 import { saveProduct } from "@/services/product-detail";
 import { useProductStore } from "@/stores/product-detail";
 import { ContentSection } from "@/types/product";
-import { Loader2, Plus, MoveUp, MoveDown, Trash2 } from "lucide-react";
+import { Loader2, MoveDown, MoveUp, Plus, Trash2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -71,6 +72,8 @@ export default function ProductDetail() {
         return <TextContent sectionId={section.id} key={section.id} />;
       case "video":
         return <Video />;
+      case "links":
+        return <LinkComponent key={section.id} sectionId={section.id} />;
       default:
         return null;
     }
@@ -174,6 +177,7 @@ export default function ProductDetail() {
   return (
     <div className="container mx-auto px-4 py-8">
       <ProductInformation
+        type="cases"
         categories={categories || []}
         onSaveCategory={handleSaveCategory}
       />
@@ -247,6 +251,9 @@ export default function ProductDetail() {
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAddSection("video")}>
                 動画
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleAddSection("links")}>
+                リンク
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

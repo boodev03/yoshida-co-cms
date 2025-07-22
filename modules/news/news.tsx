@@ -126,7 +126,7 @@ export default function News() {
           <TableHeader>
             <TableRow className="bg-gray-50 hover:bg-gray-100">
               <TableHead className="text-gray-900 font-semibold">ID</TableHead>
-              <TableHead className="text-gray-900 font-semibold">
+              <TableHead className="text-gray-900 font-semibold w-48">
                 Title
               </TableHead>
               <TableHead className="text-gray-900 font-semibold">
@@ -153,7 +153,7 @@ export default function News() {
                   <TableCell className="font-medium text-gray-900">
                     {newsItem.id}
                   </TableCell>
-                  <TableCell className="text-gray-700">
+                  <TableCell className="text-gray-700 max-w-48 whitespace-pre-wrap break-words">
                     {newsItem.title}
                   </TableCell>
                   <TableCell className="text-gray-700">

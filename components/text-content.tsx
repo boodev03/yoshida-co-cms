@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { uploadFile } from "@/services/supabase-upload";
+import { uploadFile } from "@/services/upload";
 import { useProductStore } from "@/stores/product-detail";
 import { ArrowLeftRight, Trash2, Upload } from "lucide-react";
 import { useCallback, useMemo } from "react";
@@ -44,6 +44,7 @@ export default function TextContent({
   const titleType = data?.titleType || "h1";
   const image = data?.image;
   const imagePosition = data?.imagePosition;
+  const imageCaption = data?.imageCaption || "";
 
   const handleTitleChange = (newTitle: string) => {
     updateTextContentData(sectionId, {
@@ -63,10 +64,19 @@ export default function TextContent({
     });
   };
 
+  const handleImageCaptionChange = (newCaption: string) => {
+    updateTextContentData(sectionId, {
+      imageCaption: newCaption,
+    });
+  };
+
   const handleImageUpload = useCallback(
     async (file: File) => {
       try {
-        const { publicUrl } = await uploadFile(file);
+        const publicUrl = await uploadFile({
+          file,
+          type: "image",
+        });
         const newImage = {
           src: publicUrl,
           alt: file.name,
@@ -88,6 +98,7 @@ export default function TextContent({
         alt: "",
       },
       imagePosition: "" as "left" | "right",
+      imageCaption: "",
     });
   }, [sectionId, updateTextContentData]);
 
@@ -185,6 +196,18 @@ export default function TextContent({
                   )}
                 </div>
               </div>
+              {/* Image Caption */}
+              {image?.src && (
+                <div className="space-y-1">
+                  <Label className="text-xs text-gray-600">キャプション</Label>
+                  <Input
+                    value={imageCaption}
+                    onChange={(e) => handleImageCaptionChange(e.target.value)}
+                    placeholder="画像のキャプションを入力..."
+                    className="text-sm"
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -333,6 +356,18 @@ export default function TextContent({
                   )}
                 </div>
               </div>
+              {/* Image Caption */}
+              {image?.src && (
+                <div className="space-y-1">
+                  <Label className="text-xs text-gray-600">キャプション</Label>
+                  <Input
+                    value={imageCaption}
+                    onChange={(e) => handleImageCaptionChange(e.target.value)}
+                    placeholder="画像のキャプションを入力..."
+                    className="text-sm"
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

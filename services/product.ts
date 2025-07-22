@@ -1,11 +1,8 @@
-import { app } from "@/configs/firebase.config";
+import { createDatabaseConnection } from "@/configs/database.config";
 import { Product } from "@/types/product";
-import { collection, deleteDoc, doc, getDocs, getFirestore, limit, orderBy, query, where } from "firebase/firestore";
-
-const db = getFirestore(app);
 
 /**
- * Fetches all products from the Firestore database
+ * Fetches all products from the Cloudflare D1 database
  * @param options Optional parameters for filtering and sorting
  * @returns Array of product data
  */
@@ -16,46 +13,48 @@ export const getAllProducts = async (options?: {
     searchTitle?: string;
 }): Promise<Product[]> => {
     try {
-        const productsCollection = collection(db, "products");
-        let queryRef = query(productsCollection);
+        const db = await createDatabaseConnection();
+        
+        let query = 'SELECT * FROM products WHERE 1=1';
+        const params: any[] = [];
 
         // Apply category filter if specified
         if (options?.category) {
-            queryRef = query(queryRef, where("category", "==", options.category));
+            query += ' AND category = ?';
+            params.push(options.category);
         }
 
         // Apply title search if specified
         if (options?.searchTitle) {
-            // Firebase doesn't support native text search, so we're using a "starts with" query
-            // Note: For a more robust search, consider using Algolia or other search service
-            const searchEnd = options.searchTitle + '\uf8ff';
-            queryRef = query(
-                queryRef,
-                where("title", ">=", options.searchTitle),
-                where("title", "<=", searchEnd)
-            );
+            query += ' AND title LIKE ?';
+            params.push(`%${options.searchTitle}%`);
         }
 
         // Apply sorting - we only sort by updatedAt now
         if (options?.sort === 'latest' || !options?.sort) {
-            queryRef = query(queryRef, orderBy("updatedAt", "desc"));
+            query += ' ORDER BY updatedAt DESC';
         }
 
         // Apply limit if specified
         if (options?.limit) {
-            queryRef = query(queryRef, limit(options.limit));
+            query += ' LIMIT ?';
+            params.push(options.limit);
         }
 
-        const querySnapshot = await getDocs(queryRef);
-
-        const products: Product[] = [];
-        querySnapshot.forEach((doc) => {
-            const data = doc.data() as Omit<Product, 'id'>;
-
-            products.push({ ...data, id: doc.id });
+        const result = await db.execute(query, params);
+        const products = result.results.map((item: any) => {
+            // Parse sections if they're stored as a string
+            if (typeof item.sections === 'string') {
+                try {
+                    item.sections = JSON.parse(item.sections);
+                } catch {
+                    item.sections = [];
+                }
+            }
+            return item;
         });
 
-        return products;
+        return products as Product[];
     } catch (error) {
         console.error("Error fetching products:", error);
         throw error;
@@ -63,14 +62,18 @@ export const getAllProducts = async (options?: {
 };
 
 /**
- * Deletes a product from the Firestore database by ID
+ * Deletes a product from the Cloudflare D1 database by ID
  * @param productId The ID of the product to delete
  * @returns Promise that resolves when the product is deleted
  */
 export const deleteProduct = async (productId: string): Promise<void> => {
     try {
-        const productRef = doc(db, "products", productId);
-        await deleteDoc(productRef);
+        const db = await createDatabaseConnection();
+        
+        await db.execute(
+            'DELETE FROM products WHERE id = ?',
+            [productId]
+        );
     } catch (error) {
         console.error("Error deleting product:", error);
         throw error;

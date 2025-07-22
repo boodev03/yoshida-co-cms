@@ -6,9 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:init": "wrangler d1 execute yoshida-cor --file=./schema.sql",
+    "db:query": "wrangler d1 execute yoshida-cor --command",
+    "db:local": "wrangler d1 execute yoshida-cor --local --file=./schema.sql"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.848.0",
+    "@cloudflare/workers-types": "^4.20250722.0",
     "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-dropdown-menu": "^2.1.15",
     "@radix-ui/react-label": "^2.1.7",
@@ -21,7 +26,7 @@
     "@tanstack/react-query": "^5.79.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "firebase": "^11.8.1",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.511.0",
     "next": "15.3.3",
     "next-themes": "^0.4.6",
@@ -34,6 +39,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -42,6 +48,7 @@
     "sass": "^1.89.1",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.25.0"
   }
 }

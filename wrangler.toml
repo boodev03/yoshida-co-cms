@@ -1,0 +1,19 @@
+name = "yoshida-co-cms"
+main = "src/index.js"
+compatibility_date = "2024-01-15"
+account_id = "88f6a466744ff689f8135bbcb68bd9d1"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "yoshida-cor"
+database_id = "4f5dd730-05ef-4f74-addd-b4e1a34e7cf5"
+
+# Environment variables
+[vars]
+NODE_ENV = "production"
+
+# R2 Storage binding (you already have this configured)
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "yoshida-cor"

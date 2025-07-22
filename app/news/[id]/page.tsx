@@ -1,4 +1,4 @@
-import BackButton from "@/components/BackButton";
+import BackButton from "@/components/back-button";
 import NewsDetail from "@/modules/news/news-detail";
 
 export default function ProductDetailPage() {

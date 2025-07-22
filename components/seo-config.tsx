@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { uploadFile } from "@/services/supabase-upload";
+import { uploadFile } from "@/services/upload";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -77,7 +77,10 @@ export default function SeoConfig({
     const file = e.target.files?.[0];
     if (file) {
       try {
-        const { publicUrl } = await uploadFile(file);
+        const publicUrl = await uploadFile({
+          file,
+          type: "image"
+        });
         handleChange(imageField, publicUrl);
       } catch (error) {
         console.error("Error uploading image:", error);

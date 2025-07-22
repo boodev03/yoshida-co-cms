@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export interface ContentSection {
     id: string;
-    type: 'gallery' | 'normal' | 'text-content' | 'video' | 'rich-text';
+    type: 'gallery' | 'normal' | 'text-content' | 'video' | 'rich-text' | 'links';
     order: number;
     data: any; // Specific data for each section type
     createdAt: number;
@@ -37,6 +37,7 @@ export interface TextContentData {
         file?: File;
     };
     imagePosition?: 'left' | 'right';
+    imageCaption?: string;
 }
 
 export interface VideoData {
@@ -46,6 +47,22 @@ export interface VideoData {
 
 export interface RichTextData {
     content: string; // TipTap HTML content
+}
+
+export interface LinkItem {
+    id: string;
+    text: string;
+    url: string;
+}
+
+export interface LinkList {
+    id: string;
+    type: 'bullet' | 'numbered';
+    items: LinkItem[];
+}
+
+export interface LinksData {
+    linkLists: LinkList[];
 }
 
 export interface Product {

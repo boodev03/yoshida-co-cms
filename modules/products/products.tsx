@@ -128,7 +128,7 @@ export default function Products() {
           <TableHeader>
             <TableRow className="bg-gray-50 hover:bg-gray-100">
               <TableHead className="text-gray-900 font-semibold">ID</TableHead>
-              <TableHead className="text-gray-900 font-semibold">
+              <TableHead className="text-gray-900 font-semibold w-48">
                 Title
               </TableHead>
               <TableHead className="text-gray-900 font-semibold">
@@ -155,7 +155,7 @@ export default function Products() {
                   <TableCell className="font-medium text-gray-900">
                     {product.id}
                   </TableCell>
-                  <TableCell className="text-gray-700">
+                  <TableCell className="text-gray-700 max-w-48 whitespace-pre-wrap break-words">
                     {product.title}
                   </TableCell>
                   <TableCell className="text-gray-700">
