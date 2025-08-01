@@ -20,6 +20,7 @@ import {
 import { useEquipments } from "@/hooks/useEquipments";
 import { deleteEquipment } from "@/services/equipment";
 import { saveEquipment } from "@/services/equipment";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Product } from "@/types/product";
 import { ArrowDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
@@ -33,14 +34,20 @@ export default function Equipments() {
   const [searchTitle, setSearchTitle] = useState("");
   const [sort, setSort] = useState<"latest">("latest");
   const [isCreating, setIsCreating] = useState(false);
-  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const { language, isJapanese } = useLanguage();
   const router = useRouter();
   const {
     data: equipments,
     isLoading,
     error,
     refetch,
-  } = useEquipments({ searchTitle, sort });
+  } = useEquipments({ 
+    searchTitle, 
+    sort, 
+    language,
+    type: 'equipments'
+  });
 
   if (isLoading)
     return (
@@ -51,12 +58,14 @@ export default function Equipments() {
   if (error)
     return (
       <div className="text-red-600 text-center py-10">
-        Error loading equipments: {error.message}
+        {isJapanese ? "設備の読み込みエラー: " : "Error loading equipments: "}{error.message}
       </div>
     );
   if (!equipments)
     return (
-      <div className="text-gray-600 text-center py-10">No equipments found</div>
+      <div className="text-gray-600 text-center py-10">
+        {isJapanese ? "設備が見つかりません" : "No equipments found"}
+      </div>
     );
 
   // Calculate pagination
@@ -75,10 +84,21 @@ export default function Equipments() {
       setIsCreating(true);
       // Create an empty equipment and get its ID
       const emptyEquipment = {
+        id: 0, // Will be set by database
         title: "",
         category: "",
+        type: 'equipments' as const,
+        thumbnail: "",
+        sections: [],
+        ogImage: "",
+        ogTwitter: "",
+        date: "",
+        cardDescription: "",
+        metaTitle: "",
+        metaKeywords: "",
+        metaDescription: ""
       } as Product;
-      const equipmentId = await saveEquipment(emptyEquipment);
+      const equipmentId = await saveEquipment(emptyEquipment, language);
       // Redirect to the equipment detail page
       router.push(`/equipments/${equipmentId}`);
     } catch (error) {
@@ -88,15 +108,15 @@ export default function Equipments() {
     }
   };
 
-  const handleDeleteEquipment = async (equipmentId: string) => {
+  const handleDeleteEquipment = async (equipmentId: number) => {
     try {
       setDeletingIds((prev) => new Set(prev).add(equipmentId));
       await deleteEquipment(equipmentId);
-      toast.success("Equipment deleted successfully");
+      toast.success(isJapanese ? "設備が正常に削除されました" : "Equipment deleted successfully");
       refetch(); // Refresh the equipments list
     } catch (error) {
       console.error("Error deleting equipment:", error);
-      toast.error("Failed to delete equipment");
+      toast.error(isJapanese ? "設備の削除に失敗しました" : "Failed to delete equipment");
     } finally {
       setDeletingIds((prev) => {
         const newSet = new Set(prev);
@@ -112,14 +132,17 @@ export default function Equipments() {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search equipments..."
+            placeholder={isJapanese ? "設備を検索..." : "Search equipments..."}
             className="pl-8 rounded-sm"
             value={searchTitle}
             onChange={(e) => setSearchTitle(e.target.value)}
           />
         </div>
         <Button onClick={handleCreateNewEquipment} disabled={isCreating}>
-          {isCreating ? "Creating..." : "Create New Equipment"}
+          {isCreating 
+            ? (isJapanese ? "作成中..." : "Creating...") 
+            : (isJapanese ? "新しい設備を作成" : "Create New Equipment")
+          }
         </Button>
       </div>
 
@@ -129,22 +152,25 @@ export default function Equipments() {
             <TableRow className="bg-gray-50 hover:bg-gray-100">
               <TableHead className="text-gray-900 font-semibold">ID</TableHead>
               <TableHead className="text-gray-900 font-semibold w-48">
-                Title
+                {isJapanese ? "タイトル" : "Title"}
               </TableHead>
               <TableHead className="text-gray-900 font-semibold">
-                Category
+                {isJapanese ? "カテゴリー" : "Category"}
+              </TableHead>
+              <TableHead className="text-gray-900 font-semibold">
+                {isJapanese ? "タイプ" : "Type"}
               </TableHead>
               <TableHead
                 onClick={() => handleSort("latest")}
                 className="cursor-pointer text-gray-900 font-semibold hover:text-gray-700"
               >
-                Updated At
+                {isJapanese ? "更新日" : "Updated At"}
                 {sort === "latest" && (
                   <ArrowDown className="inline ml-1 h-4 w-4 text-gray-600" />
                 )}
               </TableHead>
               <TableHead className="text-gray-900 font-semibold">
-                Actions
+                {isJapanese ? "操作" : "Actions"}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -161,13 +187,22 @@ export default function Equipments() {
                   <TableCell className="text-gray-700">
                     {equipment.category}
                   </TableCell>
+                  <TableCell className="text-gray-700">
+                    {isJapanese ? 
+                      (equipment.type === 'cases' ? '事例' : 
+                       equipment.type === 'news' ? 'ニュース' : 
+                       equipment.type === 'equipments' ? '設備' : equipment.type) 
+                      : equipment.type}
+                  </TableCell>
                   <TableCell className="text-gray-600">
                     {new Date(equipment.updatedAt || 0).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button asChild size="sm">
-                        <Link href={`/equipments/${equipment.id}`}>View</Link>
+                        <Link href={`/equipments/${equipment.id}`}>
+                          {isJapanese ? "表示" : "View"}
+                        </Link>
                       </Button>
                       <Button
                         variant="destructive"
@@ -176,8 +211,8 @@ export default function Equipments() {
                         disabled={deletingIds.has(equipment.id!)}
                       >
                         {deletingIds.has(equipment.id!)
-                          ? "Deleting..."
-                          : "Delete"}
+                          ? (isJapanese ? "削除中..." : "Deleting...")
+                          : (isJapanese ? "削除" : "Delete")}
                       </Button>
                     </div>
                   </TableCell>
@@ -185,8 +220,8 @@ export default function Equipments() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No equipments found
+                <TableCell colSpan={6} className="text-center">
+                  {isJapanese ? "設備が見つかりません" : "No equipments found"}
                 </TableCell>
               </TableRow>
             )}

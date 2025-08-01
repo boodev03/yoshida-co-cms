@@ -13,9 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Video from "@/components/video";
-import { useCategoriesByType } from "@/hooks/useCategory";
 import { useNewsItem } from "@/hooks/useNews";
-import { Category, saveCategory } from "@/services/category";
+import { getCategories } from "@/services/news";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { saveNews } from "@/services/news";
 import { useProductStore } from "@/stores/product-detail";
 import { ContentSection } from "@/types/product";
@@ -39,8 +39,9 @@ export default function NewsDetail() {
   const params = useParams();
   const newsId = params?.id as string;
 
-  const { data: newsData, isLoading, error } = useNewsItem(newsId);
-  const { data: categories, refetch } = useCategoriesByType("news");
+  const { language } = useLanguage();
+  const { data: newsData, isLoading, error } = useNewsItem(newsId, { language });
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     console.log("newsData", newsData);
@@ -49,6 +50,19 @@ export default function NewsDetail() {
       console.log("News loaded successfully:", newsId);
     }
   }, [newsData, newsId, setProduct]);
+
+  useEffect(() => {
+    // Load categories for the current type
+    const loadCategories = async () => {
+      try {
+        const categoryList = await getCategories("news", language);
+        setCategories(categoryList);
+      } catch (error) {
+        console.error("Error loading categories:", error);
+      }
+    };
+    loadCategories();
+  }, [language]);
 
   useEffect(() => {
     if (error) {
@@ -99,7 +113,7 @@ export default function NewsDetail() {
       console.log("Publishing news to Firebase:", firebaseData);
 
       // Call Firebase save function
-      const savedNewsId = await saveNews(firebaseData);
+      const savedNewsId = await saveNews(firebaseData, language);
       console.log("News published successfully with ID:", savedNewsId);
       toast.success("News published successfully");
     } catch (error) {
@@ -133,7 +147,7 @@ export default function NewsDetail() {
           metaDescription: seoData.metaDescription,
           ogImage: seoData.ogImage,
           ogTwitter: seoData.ogTwitter,
-        });
+        }, language);
         toast.success("SEO settings saved to database");
       } else {
         toast.warning(
@@ -148,16 +162,16 @@ export default function NewsDetail() {
     }
   };
 
-  const handleSaveCategory = async (
-    category: Omit<Category, "id" | "createdAt" | "updatedAt">
-  ) => {
+  const handleSaveCategory = async (categoryName: string) => {
     try {
-      await saveCategory(category);
-      refetch();
-      toast.success("Category saved successfully");
+      // Since categories are now simple strings, just add it to the list if it doesn't exist
+      if (!categories.includes(categoryName)) {
+        setCategories([...categories, categoryName]);
+      }
+      toast.success("Category added successfully");
     } catch (error) {
-      console.error("Error saving category:", error);
-      toast.error("Failed to save category");
+      console.error("Error adding category:", error);
+      toast.error("Failed to add category");
     }
   };
 
@@ -174,8 +188,7 @@ export default function NewsDetail() {
   return (
     <div className="container mx-auto px-4 py-8">
       <ProductInformation
-        type="news"
-        categories={categories || []}
+        categories={categories}
         onSaveCategory={handleSaveCategory}
       />
 

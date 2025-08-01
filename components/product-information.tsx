@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Category as CategoryType } from "@/services/category";
 import { uploadFile } from "@/services/upload";
 import { useProductStore } from "@/stores/product-detail";
 import { Trash2, Upload } from "lucide-react";
@@ -14,16 +13,12 @@ import Category from "./category";
 
 interface ProductInformationProps {
   className?: string;
-  type: 'cases' | 'news' | 'equipments'; // Category type for this context
-  categories: CategoryType[];
-  onSaveCategory: (
-    category: Omit<CategoryType, "id" | "createdAt" | "updatedAt">
-  ) => Promise<void>;
+  categories: string[];
+  onSaveCategory: (categoryName: string) => Promise<void>;
 }
 
 export default function ProductInformation({
   className,
-  type,
   categories,
   onSaveCategory,
 }: ProductInformationProps) {
@@ -68,7 +63,6 @@ export default function ProductInformation({
             <Category
               value={product.category}
               onChange={(category) => updateField("category", category)}
-              type={type}
               categories={categories}
               onSaveCategory={onSaveCategory}
             />

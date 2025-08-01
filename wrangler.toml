@@ -7,7 +7,7 @@ account_id = "88f6a466744ff689f8135bbcb68bd9d1"
 [[d1_databases]]
 binding = "DB"
 database_name = "yoshida-cor"
-database_id = "4f5dd730-05ef-4f74-addd-b4e1a34e7cf5"
+database_id = "9fa43b8b-022b-4b7b-babd-8989490f7bd1"
 
 # Environment variables
 [vars]

@@ -5,7 +5,8 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogOut, User } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { LogOut, User, Languages } from "lucide-react";
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -17,11 +18,21 @@ import {
 export default function Header() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { language, setLanguage, isJapanese } = useLanguage();
 
   const navItems = [
-    { name: "Cases", href: "/cases" },
-    { name: "News", href: "/news" },
-    { name: "Equipments", href: "/equipments" },
+    { 
+      name: isJapanese ? "事例" : "Cases", 
+      href: "/cases" 
+    },
+    { 
+      name: isJapanese ? "ニュース" : "News", 
+      href: "/news" 
+    },
+    { 
+      name: isJapanese ? "設備" : "Equipments", 
+      href: "/equipments" 
+    },
   ];
 
   const handleLogout = async () => {
@@ -62,6 +73,30 @@ export default function Header() {
               ))}
             </ul>
 
+            {/* Language Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                  <Languages className="h-4 w-4" />
+                  <span className="text-sm font-medium">{language.toUpperCase()}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem 
+                  onClick={() => setLanguage('ja')}
+                  className={language === 'ja' ? 'bg-gray-100' : ''}
+                >
+                  🇯🇵 日本語 (Japanese)
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setLanguage('en')}
+                  className={language === 'en' ? 'bg-gray-100' : ''}
+                >
+                  🇺🇸 English
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -73,7 +108,7 @@ export default function Header() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                    {isJapanese ? "ログアウト" : "Logout"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

@@ -13,9 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Video from "@/components/video";
-import { useCategoriesByType } from "@/hooks/useCategory";
 import { useEquipment } from "@/hooks/useEquipments";
-import { Category, saveCategory } from "@/services/category";
+import { getCategories } from "@/services/equipment";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { saveEquipment } from "@/services/equipment";
 import { useProductStore } from "@/stores/product-detail";
 import { ContentSection } from "@/types/product";
@@ -39,8 +39,9 @@ export default function EquipmentDetail() {
   const params = useParams();
   const equipmentId = params?.id as string;
 
-  const { data: equipmentData, isLoading, error } = useEquipment(equipmentId);
-  const { data: categories, refetch } = useCategoriesByType("equipments");
+  const { language } = useLanguage();
+  const { data: equipmentData, isLoading, error } = useEquipment(equipmentId, { language });
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     console.log("equipmentData", equipmentData);
@@ -151,12 +152,10 @@ export default function EquipmentDetail() {
     }
   };
 
-  const handleSaveCategory = async (
-    category: Omit<Category, "id" | "createdAt" | "updatedAt">
-  ) => {
+  const handleSaveCategory = async (categoryName: string) => {
     try {
-      await saveCategory(category);
-      refetch();
+      // Category saving is now handled within the product save process
+      // Just show success for consistency with UI
       toast.success("Category saved successfully");
     } catch (error) {
       console.error("Error saving category:", error);
@@ -177,7 +176,6 @@ export default function EquipmentDetail() {
   return (
     <div className="container mx-auto px-4 py-8">
       <ProductInformation
-        type="equipments"
         categories={categories || []}
         onSaveCategory={handleSaveCategory}
       />

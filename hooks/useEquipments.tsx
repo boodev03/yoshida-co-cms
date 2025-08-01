@@ -7,6 +7,8 @@ type EquipmentQueryOptions = {
   sort?: "latest";
   limit?: number;
   searchTitle?: string;
+  language?: string;
+  type?: 'cases' | 'news' | 'equipments';
   enabled?: boolean;
 };
 
@@ -20,11 +22,11 @@ export function useEquipments(options: EquipmentQueryOptions = {}) {
   });
 }
 
-export function useEquipment(id: string, options: { enabled?: boolean } = {}) {
-  const { enabled = true } = options;
+export function useEquipment(id: string, options: { enabled?: boolean; language?: string } = {}) {
+  const { enabled = true, language = 'ja' } = options;
   return useQuery<Product | null, Error>({
-    queryKey: ["equipment", id],
-    queryFn: () => getEquipment(id),
+    queryKey: ["equipment", id, language],
+    queryFn: () => getEquipment(id, language),
     enabled: enabled && !!id,
   });
 }

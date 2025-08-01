@@ -14,16 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Video from "@/components/video";
-import { useCategoriesByType } from "@/hooks/useCategory";
 import { useProduct } from "@/hooks/useProducts";
-import { Category, saveCategory } from "@/services/category";
+import { getCategories } from "@/services/product";
 import { saveProduct } from "@/services/product-detail";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useProductStore } from "@/stores/product-detail";
 import { ContentSection } from "@/types/product";
 import { Loader2, MoveDown, MoveUp, Plus, Trash2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ProductDetail() {
   const {
@@ -39,17 +40,35 @@ export default function ProductDetail() {
   const [seoOpen, setSeoOpen] = useState(false);
   const params = useParams();
   const productId = params?.id as string;
+  const { language } = useLanguage();
 
-  const { data: productData, isLoading, error } = useProduct(productId);
-  const { data: categories, refetch } = useCategoriesByType("cases");
+  const {
+    data: productData,
+    isLoading,
+    error,
+    refetch,
+  } = useProduct(productId, { language });
+  const [categories, setCategories] = useState<string[]>([]);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    console.log("productData", productData);
     if (productData) {
       setProduct(productData);
-      console.log("Product loaded successfully:", productId);
     }
-  }, [productData, productId, setProduct]);
+  }, [productData, setProduct]);
+
+  useEffect(() => {
+    // Load categories for the current type
+    const loadCategories = async () => {
+      try {
+        const categoryList = await getCategories("cases", language);
+        setCategories(categoryList);
+      } catch (error) {
+        console.error("Error loading categories:", error);
+      }
+    };
+    loadCategories();
+  }, [language]);
 
   useEffect(() => {
     if (error) {
@@ -99,11 +118,18 @@ export default function ProductDetail() {
         updatedAt: Date.now(),
       };
 
-      console.log("Publishing product to Firebase:", firebaseData);
+      // Call save function
+      await saveProduct(firebaseData, language);
 
-      // Call Firebase save function
-      const savedProductId = await saveProduct(firebaseData);
-      console.log("Product published successfully with ID:", savedProductId);
+      // Invalidate and refetch the product data
+      await queryClient.invalidateQueries({
+        queryKey: ["product", productId, language],
+      });
+      await queryClient.invalidateQueries({ queryKey: ["products"] });
+
+      // Force refetch the product data to get the latest version
+      await refetch();
+
       toast.success("Product published successfully");
     } catch (error) {
       console.error("Error publishing product:", error);
@@ -129,14 +155,17 @@ export default function ProductDetail() {
 
       const productId = params?.id as string;
       if (productId) {
-        await saveProduct({
-          ...product,
-          metaTitle: seoData.metaTitle,
-          metaKeywords: seoData.metaKeywords,
-          metaDescription: seoData.metaDescription,
-          ogImage: seoData.ogImage,
-          ogTwitter: seoData.ogTwitter,
-        });
+        await saveProduct(
+          {
+            ...product,
+            metaTitle: seoData.metaTitle,
+            metaKeywords: seoData.metaKeywords,
+            metaDescription: seoData.metaDescription,
+            ogImage: seoData.ogImage,
+            ogTwitter: seoData.ogTwitter,
+          },
+          language
+        );
         toast.success("SEO settings saved to database");
       } else {
         toast.warning(
@@ -151,16 +180,16 @@ export default function ProductDetail() {
     }
   };
 
-  const handleSaveCategory = async (
-    category: Omit<Category, "id" | "createdAt" | "updatedAt">
-  ) => {
+  const handleSaveCategory = async (categoryName: string) => {
     try {
-      await saveCategory(category);
-      refetch();
-      toast.success("Category saved successfully");
+      // Since categories are now simple strings, just add it to the list if it doesn't exist
+      if (!categories.includes(categoryName)) {
+        setCategories([...categories, categoryName]);
+      }
+      toast.success("Category added successfully");
     } catch (error) {
-      console.error("Error saving category:", error);
-      toast.error("Failed to save category");
+      console.error("Error adding category:", error);
+      toast.error("Failed to add category");
     }
   };
 
@@ -177,8 +206,7 @@ export default function ProductDetail() {
   return (
     <div className="container mx-auto px-4 py-8">
       <ProductInformation
-        type="cases"
-        categories={categories || []}
+        categories={categories}
         onSaveCategory={handleSaveCategory}
       />
 

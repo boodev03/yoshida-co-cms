@@ -21,6 +21,7 @@ import { useProducts } from "@/hooks/useProducts";
 import { deleteProduct } from "@/services/product";
 import { saveProduct } from "@/services/product-detail";
 import { Product } from "@/types/product";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { ArrowDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,14 +34,20 @@ export default function Products() {
   const [searchTitle, setSearchTitle] = useState("");
   const [sort, setSort] = useState<"latest">("latest");
   const [isCreating, setIsCreating] = useState(false);
-  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
+  const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const { language, isJapanese } = useLanguage();
   const router = useRouter();
   const {
     data: products,
     isLoading,
     error,
     refetch,
-  } = useProducts({ searchTitle, sort });
+  } = useProducts({
+    searchTitle,
+    sort,
+    language,
+    type: "cases", // Filter to only show cases type products
+  });
 
   if (isLoading)
     return (
@@ -51,12 +58,15 @@ export default function Products() {
   if (error)
     return (
       <div className="text-red-600 text-center py-10">
-        Error loading products: {error.message}
+        {isJapanese ? "製品の読み込みエラー: " : "Error loading products: "}
+        {error.message}
       </div>
     );
   if (!products)
     return (
-      <div className="text-gray-600 text-center py-10">No products found</div>
+      <div className="text-gray-600 text-center py-10">
+        {isJapanese ? "製品が見つかりません" : "No products found"}
+      </div>
     );
 
   // Calculate pagination
@@ -75,10 +85,21 @@ export default function Products() {
       setIsCreating(true);
       // Create an empty product and get its ID
       const emptyProduct = {
+        id: 0, // Will be set by database
         title: "",
         category: "",
+        type: "cases" as const,
+        thumbnail: "",
+        sections: [],
+        ogImage: "",
+        ogTwitter: "",
+        date: "",
+        cardDescription: "",
+        metaTitle: "",
+        metaKeywords: "",
+        metaDescription: "",
       } as Product;
-      const productId = await saveProduct(emptyProduct);
+      const productId = await saveProduct(emptyProduct, language);
       // Redirect to the product detail page
       router.push(`/cases/${productId}`);
     } catch (error) {
@@ -88,15 +109,21 @@ export default function Products() {
     }
   };
 
-  const handleDeleteProduct = async (productId: string) => {
+  const handleDeleteProduct = async (productId: number) => {
     try {
       setDeletingIds((prev) => new Set(prev).add(productId));
       await deleteProduct(productId);
-      toast.success("Product deleted successfully");
+      toast.success(
+        isJapanese
+          ? "製品が正常に削除されました"
+          : "Product deleted successfully"
+      );
       refetch(); // Refresh the products list
     } catch (error) {
       console.error("Error deleting product:", error);
-      toast.error("Failed to delete product");
+      toast.error(
+        isJapanese ? "製品の削除に失敗しました" : "Failed to delete product"
+      );
     } finally {
       setDeletingIds((prev) => {
         const newSet = new Set(prev);
@@ -112,14 +139,20 @@ export default function Products() {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search products..."
+            placeholder={isJapanese ? "製品を検索..." : "Search products..."}
             className="pl-8 rounded-sm"
             value={searchTitle}
             onChange={(e) => setSearchTitle(e.target.value)}
           />
         </div>
         <Button onClick={handleCreateNewProduct} disabled={isCreating}>
-          {isCreating ? "Creating..." : "Create New Product"}
+          {isCreating
+            ? isJapanese
+              ? "作成中..."
+              : "Creating..."
+            : isJapanese
+            ? "新しい製品を作成"
+            : "Create New Product"}
         </Button>
       </div>
 
@@ -129,22 +162,25 @@ export default function Products() {
             <TableRow className="bg-gray-50 hover:bg-gray-100">
               <TableHead className="text-gray-900 font-semibold">ID</TableHead>
               <TableHead className="text-gray-900 font-semibold w-48">
-                Title
+                {isJapanese ? "タイトル" : "Title"}
               </TableHead>
               <TableHead className="text-gray-900 font-semibold">
-                Category
+                {isJapanese ? "カテゴリー" : "Category"}
+              </TableHead>
+              <TableHead className="text-gray-900 font-semibold">
+                {isJapanese ? "タイプ" : "Type"}
               </TableHead>
               <TableHead
                 onClick={() => handleSort("latest")}
                 className="cursor-pointer text-gray-900 font-semibold hover:text-gray-700"
               >
-                Updated At
+                {isJapanese ? "更新日" : "Updated At"}
                 {sort === "latest" && (
                   <ArrowDown className="inline ml-1 h-4 w-4 text-gray-600" />
                 )}
               </TableHead>
               <TableHead className="text-gray-900 font-semibold">
-                Actions
+                {isJapanese ? "操作" : "Actions"}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -161,13 +197,26 @@ export default function Products() {
                   <TableCell className="text-gray-700">
                     {product.category}
                   </TableCell>
+                  <TableCell className="text-gray-700">
+                    {isJapanese
+                      ? product.type === "cases"
+                        ? "事例"
+                        : product.type === "news"
+                        ? "ニュース"
+                        : product.type === "equipments"
+                        ? "設備"
+                        : product.type
+                      : product.type}
+                  </TableCell>
                   <TableCell className="text-gray-600">
-                    {new Date(product.updatedAt || 0).toLocaleDateString()}
+                    {product.date || new Date(product.updatedAt || 0).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button asChild size="sm">
-                        <Link href={`/cases/${product.id}`}>View</Link>
+                        <Link href={`/cases/${product.id}`}>
+                          {isJapanese ? "表示" : "View"}
+                        </Link>
                       </Button>
                       <Button
                         variant="destructive"
@@ -176,7 +225,11 @@ export default function Products() {
                         disabled={deletingIds.has(product.id!)}
                       >
                         {deletingIds.has(product.id!)
-                          ? "Deleting..."
+                          ? isJapanese
+                            ? "削除中..."
+                            : "Deleting..."
+                          : isJapanese
+                          ? "削除"
                           : "Delete"}
                       </Button>
                     </div>
@@ -185,8 +238,8 @@ export default function Products() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">
-                  No products found
+                <TableCell colSpan={6} className="text-center">
+                  {isJapanese ? "製品が見つかりません" : "No products found"}
                 </TableCell>
               </TableRow>
             )}

@@ -2,6 +2,7 @@ import Header from "@/components/header";
 import ProtectedRoute from "@/components/protected-route";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { QueryProvider } from "@/providers/query-provider";
 import type { Metadata } from "next";
 import "./globals.css";
@@ -28,13 +29,15 @@ export default function RootLayout({
       <body className={`${notoSans.className} antialiased`}>
         <QueryProvider>
           <AuthProvider>
-            <ProtectedRoute>
-              <Header />
-              <main className="min-h-[calc(100vh-62px)] flex flex-col">
-                {children}
-              </main>
-            </ProtectedRoute>
-            <Toaster />
+            <LanguageProvider>
+              <ProtectedRoute>
+                <Header />
+                <main className="min-h-[calc(100vh-62px)] flex flex-col">
+                  {children}
+                </main>
+              </ProtectedRoute>
+              <Toaster />
+            </LanguageProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

@@ -21,7 +21,7 @@ wrangler d1 create yoshida-cms-db
 
 ```bash
 # Execute the schema file to create tables
-wrangler d1 execute yoshida-cms-db --file=./schema.sql
+npx wrangler d1 execute yoshida-cor --file=./schema.sql
 ```
 
 ## Step 3: Environment Variables
@@ -87,7 +87,7 @@ If you have existing Firebase data, you'll need to migrate it. Here's a basic sc
 
 ```javascript
 // migration-script.js
-const admin = require('firebase-admin');
+const admin = require("firebase-admin");
 // Export data from Firebase
 // Transform to D1 format
 // Import to D1 via API calls
@@ -102,6 +102,7 @@ The new authentication system uses JWT tokens instead of Firebase Auth:
 - Logout endpoint: `/api/auth/logout`
 
 Default credentials:
+
 - Email: admin@yoshida.co
 - Password: admin123
 
@@ -110,7 +111,7 @@ Default credentials:
 All database operations now use SQL queries instead of Firestore:
 
 - Categories table: `categories`
-- Products table: `products` 
+- Products table: `products`
 - News table: `news`
 - Equipment table: `equipments`
 

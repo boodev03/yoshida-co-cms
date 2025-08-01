@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
 // Real Cloudflare D1 database connection for production
 export async function POST(request: NextRequest) {
@@ -11,18 +11,18 @@ export async function POST(request: NextRequest) {
     const apiToken = process.env.CLOUDFLARE_API_TOKEN;
 
     if (!accountId || !databaseId || !apiToken) {
-      throw new Error('Missing Cloudflare credentials. Please check your environment variables.');
+      throw new Error(
+        "Missing Cloudflare credentials. Please check your environment variables."
+      );
     }
-
-    console.log('Executing D1 query:', query, params);
 
     const response = await fetch(
       `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/query`,
       {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiToken}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           sql: query,
@@ -33,28 +33,31 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`D1 API request failed: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(
+        `D1 API request failed: ${response.status} ${response.statusText} - ${errorText}`
+      );
     }
 
     const data = await response.json();
 
     if (!data.success) {
-      throw new Error(`D1 query failed: ${data.errors?.[0]?.message || 'Unknown error'}`);
+      throw new Error(
+        `D1 query failed: ${data.errors?.[0]?.message || "Unknown error"}`
+      );
     }
 
     return NextResponse.json({
       success: true,
       results: data.result[0]?.results || [],
-      meta: data.result[0]?.meta || {}
+      meta: data.result[0]?.meta || {},
     });
-
   } catch (error: unknown) {
-    console.error('Database query error:', error);
-    
+    console.error("Database query error:", error);
+
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Database query failed'
+        error: error instanceof Error ? error.message : "Database query failed",
       },
       { status: 500 }
     );

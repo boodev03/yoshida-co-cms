@@ -7,6 +7,8 @@ type NewsQueryOptions = {
   sort?: "latest";
   limit?: number;
   searchTitle?: string;
+  language?: string;
+  type?: 'cases' | 'news' | 'equipments';
   enabled?: boolean;
 };
 
@@ -20,11 +22,11 @@ export function useNews(options: NewsQueryOptions = {}) {
   });
 }
 
-export function useNewsItem(id: string, options: { enabled?: boolean } = {}) {
-  const { enabled = true } = options;
+export function useNewsItem(id: string, options: { enabled?: boolean; language?: string } = {}) {
+  const { enabled = true, language = 'ja' } = options;
   return useQuery<Product | null, Error>({
-    queryKey: ["news", id],
-    queryFn: () => getNews(id),
+    queryKey: ["news", id, language],
+    queryFn: () => getNews(id, language),
     enabled: enabled && !!id,
   });
 }

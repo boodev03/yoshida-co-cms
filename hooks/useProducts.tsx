@@ -8,6 +8,8 @@ type ProductQueryOptions = {
   sort?: "latest";
   limit?: number;
   searchTitle?: string;
+  language?: string;
+  type?: 'cases' | 'news' | 'equipments';
   enabled?: boolean;
 };
 
@@ -21,12 +23,12 @@ export function useProducts(options: ProductQueryOptions = {}) {
   });
 }
 
-export function useProduct(id: string, options: { enabled?: boolean } = {}) {
-  const { enabled = true } = options;
+export function useProduct(id: string, options: { enabled?: boolean; language?: string } = {}) {
+  const { enabled = true, language = 'ja' } = options;
 
   return useQuery<Product | null, Error>({
-    queryKey: ["product", id],
-    queryFn: () => getProduct(id),
+    queryKey: ["product", id, language],
+    queryFn: () => getProduct(id, language),
     enabled: enabled && !!id,
   });
 }

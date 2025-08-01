@@ -24,6 +24,7 @@ interface ProductState {
 }
 
 const initialProduct: Product = {
+    id: 0, // Add id field
     title: '',
     category: '',
     cardDescription: '',
@@ -33,7 +34,9 @@ const initialProduct: Product = {
     metaKeywords: '',
     metaDescription: '',
     ogImage: '',
-    ogTwitter: ''
+    ogTwitter: '',
+    date: '',
+    type: 'cases'
 };
 
 export const useProductStore = create<ProductState>((set) => ({
@@ -52,7 +55,7 @@ export const useProductStore = create<ProductState>((set) => ({
     addSection: (type, data = {}) => set((state) => {
         const currentSections = state.product.sections || [];
         const newSection: ContentSection = {
-            id: `section-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            id: `section-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
             type,
             order: currentSections.length,
             data: getDefaultDataForType(type, data),

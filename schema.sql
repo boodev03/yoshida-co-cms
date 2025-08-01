@@ -1,77 +1,77 @@
--- Cloudflare D1 Database Schema
+-- Multilingual Database Schema for Yoshida Co CMS
+-- This schema supports English and Japanese content with optimized structure
 
--- Categories table
-CREATE TABLE IF NOT EXISTS categories (
-    id TEXT PRIMARY KEY DEFAULT (hex(randomblob(16))),
-    category_name TEXT NOT NULL,
+-- Languages table
+CREATE TABLE IF NOT EXISTS languages (
+    code TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    is_default BOOLEAN DEFAULT FALSE,
+    createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    updatedAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+);
+
+-- Insert default languages
+INSERT OR IGNORE INTO languages (code, name, is_default) VALUES 
+    ('en', 'English', FALSE),
+    ('ja', 'Japanese', TRUE);
+
+-- Posts table - stores common fields and metadata
+CREATE TABLE IF NOT EXISTS posts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     type TEXT NOT NULL CHECK (type IN ('cases', 'news', 'equipments')),
-    createdAt INTEGER NOT NULL,
-    updatedAt INTEGER NOT NULL
+    thumbnail TEXT DEFAULT '',
+    ogImage TEXT DEFAULT '',
+    ogTwitter TEXT DEFAULT '',
+    date TEXT DEFAULT '',
+    createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    updatedAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
 );
 
--- Products table
-CREATE TABLE IF NOT EXISTS products (
-    id TEXT PRIMARY KEY DEFAULT (hex(randomblob(16))),
-    title TEXT NOT NULL,
+-- Post translations table - stores language-specific content
+CREATE TABLE IF NOT EXISTS post_translations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER NOT NULL,
+    language_code TEXT NOT NULL,
     category TEXT NOT NULL,
+    title TEXT NOT NULL,
     cardDescription TEXT DEFAULT '',
-    thumbnail TEXT DEFAULT '',
     sections TEXT DEFAULT '[]', -- JSON string for ContentSection[]
     metaTitle TEXT DEFAULT '',
     metaKeywords TEXT DEFAULT '',
     metaDescription TEXT DEFAULT '',
-    ogImage TEXT DEFAULT '',
-    ogTwitter TEXT DEFAULT '',
-    createdAt INTEGER NOT NULL,
-    updatedAt INTEGER NOT NULL
+    createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    updatedAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (language_code) REFERENCES languages(code),
+    UNIQUE(post_id, language_code)
 );
 
--- News table
-CREATE TABLE IF NOT EXISTS news (
-    id TEXT PRIMARY KEY DEFAULT (hex(randomblob(16))),
-    title TEXT NOT NULL,
-    category TEXT NOT NULL,
-    cardDescription TEXT DEFAULT '',
-    thumbnail TEXT DEFAULT '',
-    sections TEXT DEFAULT '[]', -- JSON string for ContentSection[]
-    metaTitle TEXT DEFAULT '',
-    metaKeywords TEXT DEFAULT '',
-    metaDescription TEXT DEFAULT '',
-    ogImage TEXT DEFAULT '',
-    ogTwitter TEXT DEFAULT '',
-    createdAt INTEGER NOT NULL,
-    updatedAt INTEGER NOT NULL
+-- Categories table (updated for multilingual support)
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL CHECK (type IN ('cases', 'news', 'equipments')),
+    createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    updatedAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
 );
 
--- Equipments table
-CREATE TABLE IF NOT EXISTS equipments (
-    id TEXT PRIMARY KEY DEFAULT (hex(randomblob(16))),
-    title TEXT NOT NULL,
-    category TEXT NOT NULL,
-    cardDescription TEXT DEFAULT '',
-    thumbnail TEXT DEFAULT '',
-    sections TEXT DEFAULT '[]', -- JSON string for ContentSection[]
-    metaTitle TEXT DEFAULT '',
-    metaKeywords TEXT DEFAULT '',
-    metaDescription TEXT DEFAULT '',
-    ogImage TEXT DEFAULT '',
-    ogTwitter TEXT DEFAULT '',
-    createdAt INTEGER NOT NULL,
-    updatedAt INTEGER NOT NULL
+-- Category translations table
+CREATE TABLE IF NOT EXISTS category_translations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id INTEGER NOT NULL,
+    language_code TEXT NOT NULL,
+    category_name TEXT NOT NULL,
+    createdAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    updatedAt INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
+    FOREIGN KEY (language_code) REFERENCES languages(code),
+    UNIQUE(category_id, language_code)
 );
 
 -- Indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_categories_type ON categories(type);
-CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(category_name);
-
-CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
-CREATE INDEX IF NOT EXISTS idx_products_updated ON products(updatedAt DESC);
-CREATE INDEX IF NOT EXISTS idx_products_title ON products(title);
-
-CREATE INDEX IF NOT EXISTS idx_news_category ON news(category);
-CREATE INDEX IF NOT EXISTS idx_news_updated ON news(updatedAt DESC);
-CREATE INDEX IF NOT EXISTS idx_news_title ON news(title);
-
-CREATE INDEX IF NOT EXISTS idx_equipments_category ON equipments(category);
-CREATE INDEX IF NOT EXISTS idx_equipments_updated ON equipments(updatedAt DESC);
-CREATE INDEX IF NOT EXISTS idx_equipments_title ON equipments(title);
+CREATE INDEX IF NOT EXISTS idx_posts_type ON posts(type);
+CREATE INDEX IF NOT EXISTS idx_posts_category ON posts(category);
+CREATE INDEX IF NOT EXISTS idx_posts_created ON posts(createdAt);
+CREATE INDEX IF NOT EXISTS idx_post_translations_post_id ON post_translations(post_id);
+CREATE INDEX IF NOT EXISTS idx_post_translations_language ON post_translations(language_code);
+CREATE INDEX IF NOT EXISTS idx_category_translations_category_id ON category_translations(category_id);
+CREATE INDEX IF NOT EXISTS idx_category_translations_language ON category_translations(language_code);
