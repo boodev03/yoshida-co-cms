@@ -11,4 +11,191 @@ INSERT OR IGNORE INTO category_translations (category_id, language_code, categor
 INSERT OR IGNORE INTO categories (id, type) VALUES (302, 'news');
 INSERT OR IGNORE INTO category_translations (category_id, language_code, category_name) VALUES (302, 'ja', '研究開発');
 
-IGNORE
+-- End of News Categories
+
+-- Inserting News Posts and Post Translations
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (267, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2018/12/3411a6585f43bd33addd893315d26f06-1.png', '2018/9/12');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (267, 'ja', '【新聞掲載記事】月内に新工場稼働（茨城新聞 平成30年9月13日）', '原子力産業向けグローブボックス 大型製品の生産強化 金属加工のヨシダ（水戸市塩崎、吉田陽子社長）は9月下旬、同市内に新工場を稼働し、主力の原子力関連産業向けグローブボックスの生産体制を強化する。総重量5トンを超える大型製品の生産を伸ばし、受注の間口を広げる。創業100周年を迎える5年後には売上...', 'お知らせ,その他');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (278, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2018/09/2aaf060b2ace537f4d0bb55a0d3bc1ad.png', '2018/9/19');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (278, 'ja', '【新聞掲載記事】原子力関連装置のヨシダ 新工場で生産能力倍に（日本経済新聞 平成30年9月20日）', '設計・製造・搬出 工程一貫 他分野から受注狙う 原子力施設用設備の設計・製造などを手掛けるヨシダ（水戸市）は市内で新工場を稼働させた。大型設備を導入し、生産能力を従来の2倍に引き上げた。設計から組み立て、試験、搬出までを一貫して担える体制を整備。主力事業の原子力関係に加え、他の産業関連企業から...', 'お知らせ,その他');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (340, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2018/11/news3thum.jpg', '2018/11/27');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (340, 'ja', '【新聞掲載記事】密閉容器の新工場稼働に（日刊工業新聞 平成30年11月27日）', 'ヨシダ 医療機器・エネ向け拡大 【水戸】ヨシダ（水戸市、吉田陽子社長、029・297・1005）は、密閉容器「グローブボックス」を製造する第2工場を稼働した。大型設備用機材向けの加工環境を整えたことで、年間生産能力は従来の2機から最大8機になる。総投資額は16億円。既存の原子力分野を強化すると...', 'お知らせ,その他');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (548, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2019/02/dd695e292f94502ee23bb03514b434d1.jpg', '2019/2/18');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (548, 'ja', '【新聞掲載記事】放射性物質扱う箱　グローブボックス特集(読売新聞　平成31年2月17日)', '密閉空間で放射性物質を扱う「グローブボックス」。水戸市にあるヨシダの主力製品は、東京電力福島第一原発の核燃料デブリ（残骸）を研究する日本原子力研究開発機構の大熊分析・研究センター（福島県）など、原子力施設で不可欠だ。 連結した手袋部分に手を入れ、外気を遮断しながら箱の内部で作業しなければならな...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (561, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2019/03/DSC_0025.jpg', '2019/3/1');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (561, 'ja', '研究開発', '研究開発中のグローブボックスへ納入する装置説明のため、PolarTechのDan CEOがわざわざデンマークから来社してくださいました。多岐にわたるディスカッションを行い、開発へのアドバイスも頂くことが出来ました。ありがとうございました。', 'お知らせ,研究開発');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (561, 'en', 'Research and Development', 'Mr.Dan, CEO of PolarTech from Denmark, came to visit us for explanation of the equipment to be installed in the glove box which is in progress of R...', 'お知らせ,研究開発');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (574, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2019/03/DSC_0254.jpg', '2019/3/6');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (574, 'ja', 'シンガポール国立がんセンター様来社', '日立製作所様、日立パワーソリューションズ様が製作を行っている医療装置の製造過程を見学するために、シンガポール国立がんセンター（National Cancer Centre Singapore）の方々が来社して下さいました。 弊社では、最終ユーザー様とお会いする機会が少ない中、このような機会に恵...', 'お知らせ');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (574, 'en', 'Visit from Singapore National Cancer Center', 'Member of the National Cancer Centre Singapore visited us to observe the manufacturing process of the medical device of Hitachi and Hitachi Power S...', 'お知らせ');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (612, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2019/04/o0960072014364594576.jpg', '2019/3/1');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (612, 'ja', '水戸市優良工場の認定', '弊社第二工場が、水戸市優良工場の認定受け、表彰して頂きました。高橋市長、ありがとうございました。', 'お知らせ');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (612, 'en', 'Certification of Mito City Excellent Factory', 'Our second factory received certification of Mito City Excellent Factory and received a commendation by Mayor Takahashi. Thank you very much!', 'お知らせ');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (620, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2019/04/page12_.jpg', '2019/4/1');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (620, 'ja', '【掲載記事】水戸テクノ倶楽部会員企業等工場見学会(水戸商工会議所会報　平成31年4月1日)', '水戸商工会議所会報 4月号に掲載されました。', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (658, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2019/06/book2019.jpg', '2019/6/4');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (658, 'ja', 'はばたく中小企業・小規模事業者300社に選定', '中小企業庁殿より、様々な分野で活躍している中小企業の一つとして、「はばたく中小企業・小規模事業者300社」に選定して頂きました。 「はばたく中小企業・小規模事業者300社」 について https://www.chusho.meti.go.jp/keiei/sapoin/monozukuri30...', 'お知らせ');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (658, 'en', 'We were commended as "Potential SMEs 300"', 'We were commended as "Potential SMEs 300" by the Small and Medium Enterprise Agency. About "Potential SMEs 300" https://www.chusho.meti.go.jp/keiei...', 'お知らせ');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (705, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2019/08/befdd21643d2778e7f4f4b08e4e0cb7d-1.jpg', '2019/8/5');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (705, 'ja', '【新聞掲載記事】はばたく中小300社　ヨシダ-生産性向上により選定(溶接ニュース　令和元年8月6日)', 'グローブボックスは外気を遮断した状態でステンレス製のボックス内を負圧管理して作業者が容器の外からグローブを介して安全に取り扱うことができる装置だ。医療機関や研究機関、原子力関連施設など様々なシーンで用いられ、高い気密性と耐震性が求められる。ヨシダ(茨城県水戸市・吉田陽子社長)は自社内に設計・機...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (886, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2020/03/20200131151253-1-724x1024.jpg', '2020/1/29');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (886, 'ja', '茨城エコ事業所に登録', '環境にやさしい取組を行う事業所として、「茨城エコ事業所」に登録されました。', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1006, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2020/04/aba1dd9afd994bc383f5259806be7bb4.jpg', '2020/4/24');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1006, 'ja', '飛沫感染防止グローブボックス', '原子力製品の隔離技術を使い、COVID-19からの隔離用グローブボックスを設計検討しました。 吸排気系統へ、HEPAフィルターを付けることで、0.3μmの粒子に対して99.97%以上の粒子捕集率を保証します。(飛沫感染を予防します) また、パスボックスや滅菌装置の取付も可能となっています。 医...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1073, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2020/11/29d3bc99193cb0b837fb8cc53f050ae5-1.jpg', '2020/11/3');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1073, 'ja', '旭日単光章を受章', 'この度、弊社社長、吉田陽子が旭日単光章を受章いたしました。 これもひとえに、皆様方のご指導の賜物と改めて感謝申し上げる次第です。 残念ながら今年は、コロナウィルスの影響もあり、天皇陛下拝謁の機会はかないませんが、これを良い機会とし、社員一同、3年後の創立100周年に向けて、さらなるヨシダの発展...', 'お知らせ');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1073, 'en', 'Our president, Yoko Yoshida, has received The Order of the Rising Sun, Silver Rays from His Majesty the Emperor.', 'Our president, Yoko Yoshida, has received The Order of the Rising Sun, Silver Rays from His Majesty the Emperor. We would like to thank all of you ...', 'お知らせ');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1138, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/02/345cb7731ea9570f146a31b0417471c1.png', '2021/2/17');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1138, 'ja', '【新聞掲載記事】水戸の機器メーカーとJ-PARC、「はやぶさ2」回収試料の分析法確立目指す(水戸経済新聞　令和3年2月17日)', '水戸の機器メーカー「ヨシダ」（水戸市六反田町）と大強度陽子加速器施設「J-PARC」（東海村白方）が現在、「はやぶさ2」回収試料の分析法確立を目指し、研究を進めている。 小惑星探査機「はやぶさ2」は2014（平成26）年の打ち上げ後、2018（平成30）年6月に地球から3億キロにある小惑星「リ...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1171, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/05/20210527083755_page-0001.jpg', '2021/5/24');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1171, 'ja', '【新聞掲載記事】高能率アーク溶接システム『D-Arc』普及拡大！/ダイヘン（溶接新報　令和3年5月24日）', '想定以上の作業効率向上と使いやすさに高評価！ ステンレス溶接に適用可能な「D-Arc」の開発も希望 ㈱ヨシダ（茨城県水戸市、吉田陽子社長）は、大正12年創業。当初は日立製作所の下請け企業としてスタートしたが、昭和36年3月に国立研究法人日本原子力開発機構（JAEA）からグローブボックスの試作・...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1180, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/06/30dc5be8cb7aac2321aad15b78ec63b1-1.jpg', '2021/3/1');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1180, 'ja', '【掲載記事】地域中小企業×ベンチャー連携の鍵（創業応援vol.21 2021年3月リバネス出版）', '', 'お知らせ,研究開発');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1184, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/06/d7a7095dfc10b37b8886b64acd332adc.jpg', '2021/5/21');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1184, 'ja', '中堅・中小企業とスタートアップの連携による価値創造チャレンジ事業', '「中堅・中小企業とスタートアップの連携による価値創造チャレンジ事業」のPDFマガジンに、株式会社ヨシダ×株式会社メルティンMMI様の「アバターロボットによる遠隔操作型グローブボックス開発に向けた共同研究」が事例として掲載されました。 下記リンクよりご覧ください。 https://www.kan...', 'お知らせ,研究開発');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1186, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/06/30dc5be8cb7aac2321aad15b78ec63b1-1.jpg', '2021/5/21');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1186, 'ja', '現場の知識を武器に、具体的にイメージを描けるか', '中堅・中小企業とスタートアップが連携し、価値創造活動を実践する企業へのインタビューや令和2年度に開催した「地域産業創出セミナー」に係る記事（コラム）にて、株式会社ヨシダと株式会社メルティンMMI様との対談コラムが掲載されました。 下記リンクよりご覧ください。 https://www.kanto...', 'お知らせ,研究開発');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1204, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/06/d1683650e23d3f5e5acaac6d9e84afbd-e1625135460987.jpg', '2021/7/1');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1204, 'ja', '福島第一原子力発電所における廃炉作業向け 遠隔操作型隔離・遮へい装置に関する共同検討の3社覚書締結について', '株式会社ヨシダ（代表取締役：吉田 陽子、以下「ヨシダ」）、および、株式会社メルティンMMI（代表取締役：粕谷 昌宏、以下「MELTIN」）は、この度、両社で開発中の「遠隔操作型隔離装置および遠隔操作型遮へい装置」に関して、東京電力ホールディングス株式会社福島第一原子力発電所の廃炉事業における分...', 'お知らせ,研究開発');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1204, 'en', 'Signing of Memorandum of Understanding(MoU) Joint Study of Remotely Operated Isolating and Shielding Devices for Possible Application during the Decommissioning of the TEPCO Fukushima Daiichi Nuclear Power Station', 'Tokyo Electric Power Company Holdings, Inc. (President: Tomoaki Kobayakawa; hereinafter referred to as; ‘‘TEPCO”) has signed a Memorandum of Unders...', 'お知らせ,研究開発');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1313, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/07/0707_page-0001-1.jpg', '2021/7/7');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1313, 'ja', '【HP掲載】HAYABUSA2-IMSS「はやぶさ2  微粒子分析」（令和3年7月1日）', '高エネルギー加速器研究機構(KEK) 物質構造科学研究所 HAYABUSA2-IMSS「はやぶさ2 微粒子分析」ホームページにて、弊社が製作したグローブボックスが紹介されました。 ぜひ、下記リンクよりご覧ください ・J-PARC MLF ミュオン科学実験施設でのリュウグウ試料の分析が始まりまし...', 'お知らせ');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1313, 'en', 'HAYABUSA2-IMSS「Analysis of asteroid Ryugu」', 'The glove box manufactured by our company was introduced on The website of High Energy Accelerator Research Organization (KEK) Institute of Materia...', 'お知らせ');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1340, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/09/07df95444a90095acdbda58b953e4751-1.jpeg', '2021/8/24');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1340, 'ja', '男女平等参画社会づくり功労賞受賞', '2021年8月24日、茨城県水戸市から男女共同参画社会づくり功労賞を受賞しました。 この賞は、各分野において実践的な活動を積み重ね、 男女共同参画の推進における成果を表彰するものです。 https://youtu.be/jD0uNxQ_U00?t=538', 'お知らせ');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1340, 'en', 'Received the Gender Equality Achievement Award', 'On August 24th, 2021, Yoshida Inc. received the Gender Equality Award from Mito city, Ibaraki Prefecture. This award is to recognize achievements i...', 'お知らせ');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1376, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/10/11_page-00011.jpg', '2021/10/12');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1376, 'ja', '【新聞掲載記事】富岡に廃炉訓練拠点が完成　遠隔操作や分析、人材育成へ（福島民友新聞 令和3年10月9日）', '福島民友新聞に、 弊社製作、東京パワーテクノロジー福島テクニカルセンター様向け模擬鉄セル及びグローブボックス導入の記事が掲載されました。 今後、福島第１原発の廃炉に向けた人材を育成する拠点となる施設です。 ぜひ、下記リンクよりご覧ください https://www.minyu-net.com/n...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1404, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/10/723b7adf346759e00bf759225eef4683.jpg', '2021/10/25');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1404, 'ja', '公式インスタグラム開設', '株式会社ヨシダの公式インスタグラムを開設しました。 弊社の製品や社員の様子など、たくさんシェアしてまいりますので、ぜひ、フォローをお願いいたします。 https://www.instagram.com/yoshida1923_japan/', 'お知らせ');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1404, 'en', 'Official Instagram account opened', 'Yoshida Inc. in Japan finally opened its official Instagram account! Follow us for more: https://www.instagram.com/yoshida1923_japan/', 'お知らせ');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1420, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/12/1_page-0001.jpg', '2021/11/25');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1420, 'ja', '令和3年度茨城県技能者表彰', 'この度、弊社社員、小泉英雄が茨城県技能者表彰を受章いたしました。 これもひとえに、皆様方のご指導の賜物と改めて感謝申し上げる次第です。 社員一同、2年後の創立100周年に向けて、さらなるヨシダの発展に尽力してまいる所存です。今後とも皆様方におかれましては、ご指導、ご鞭撻を賜りますようお願い申し...', 'お知らせ');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1420, 'en', 'Received Technician Award of Ibaraki Prefectural Government', 'We are thrilled to announce that Mr. Hideo Koizumi, one of our colleagues, has received Technician Award of Ibaraki Prefectural Government. We woul...', 'お知らせ');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1452, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2022/07/20220701113305_page-0001.jpg', '2022/7/1');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1452, 'ja', '当社役員人事に関するお知らせ', '', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1457, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2021/07/0707_page-0001-1.jpg', '2022/9/27');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1457, 'ja', '【HP掲載】「素粒子ミュオンにより非破壊で 小惑星リュウグウの石の元素分析に成功 - 太陽系を代表する新たな標準試料となる可能性 -（令和4年9月23日）', '高エネルギー加速器研究機構(KEK)様 及び、 高エネルギー加速器研究機構 J-PARCセンター 日本原子力研究開発機構様 ホームページにて、弊社が製作したグローブボックスが紹介されました。 ぜひ、下記リンクよりご覧ください ・素粒子ミュオンにより非破壊で 小惑星リュウグウの石の元素分析に成功...', 'お知らせ');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1457, 'en', 'Muon experiment reveals more detail of asteroid Ryugu', 'We would like to share the good news that Yoshida’s glovebox was used to find the oxygen abundance in asteroid Ryugu by High Energy Accelerator Res...', 'お知らせ');
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1505, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2023/04/0608740c2ed073605c9449143284c804.jpg', '2023/4/25');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1505, 'ja', '【新聞掲載記事】プラズマ溶接を活用した挑戦、原子力対応品質の適用を拡大（溶接ニュース　令和5年4月25日）', 'グローブボックスや原子力用容器などの設計から製造を行っているヨシダ（茨城県水戸市六反田町、米川周佑社長）は、1923年に創業し今年4月1日で創業100周年を迎えた。同社の製品にはステンレス鋼が多く、長年ティグ溶接を活用してきた。今回、新たに挑戦しているプラズマ溶接の適用と今後の事業展開について...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1547, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2023/06/PXL_20221107_061353339.jpg', '2023/6/20');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1547, 'ja', '国際廃炉研究開発機構(IRID)_令和4年度研究開発成果へ掲載', '国際廃炉研究開発機構(IRID)が実施している「燃料デブリの段階的に規模を拡大した取り出し技術の開発」成果にて、弊社が製作を担ったエンクロージャが紹介されました。 https://irid.or.jp/wp-content/uploads/2023/06/2022007dandori20230...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1646, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2023/11/451.jpg', '2023/11/14');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1646, 'ja', '卓越した技能者（現代の名工）表彰', 'この度、弊社社員_小泉英雄が厚生労働省より卓越した技能者（現代の名工）を受賞いたしました。これもひとえに 、皆様方のご指導の賜物と改めて感謝申し上げる次第です 。 社員一同、 さらなるヨシダの発展に尽力してまいる所存です。今後とも皆様方におかれましては、ご指導、ご鞭撻を賜りますようお願い申し上...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1681, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2024/11/oju-hosho.jpg', '2024/11/12');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1681, 'ja', '黄綬褒章を受章', '11月3日に弊社社員 小泉英雄が秋の褒章『黄綬褒章』を受章いたしました。 これもひとえに、皆様方のご指導の賜物と改めて感謝申し上げる次第です。 11月26日にホテルニューオータニにて、令和6年秋の褒章伝達式及び拝謁式がおこなわれます。 今後とも皆様方におかれましては、ご指導、ご鞭撻を賜りますよ...', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1711, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2025/02/f9978125aec38021fb2b7ea299b55179-1.jpg', '2025/1/21');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1711, 'ja', '宇宙航空研究開発機構（JAXA）より国際宇宙ステーション（ISS）「きぼう」日本実験棟 自動実験システム（GEMPAK）の開発に関する業務を受託しました', '', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1780, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2025/02/26075b475f53f6b9430fe5f17d41fe6b.png', '2025/2/19');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1780, 'ja', 'ツギノジダイ　インタビュー記事　掲載', '「ツギノジダイ」へ弊社代表取締役のインタビュー記事が掲載されました。 詳細は、下記リンクをご参照ください。 https://smbiz.asahi.com/article/15624972', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1850, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2025/04/1cf182fb2bef33680853deb18bdd2fd3.png', '2025/4/1');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1850, 'ja', '【掲載】補助金（Go-Tech事業）の活用事例', '成長型中小企業等研究開発支援事業（Go-Tech事業）の活用事例がNSCPへ掲載されました。 詳細は下記URLよりご覧ください。 https://jaif-bg.jp/nscp-succession/yoshida/', 'お知らせ');
+
+
+INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (1854, 'news', 'https://ysd-k.co.jp/yoshida-cms/wp-content/uploads/2025/04/ffa1c6ba62291ddc5bb2db4f0e433eaa.png', '2025/4/2');
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1854, 'ja', '【掲載】代表取締役インタビュー「点と点を繋げ　次の100年へ」', '弊社代表取締役のインタビューが 関東経済産業局 projectchain へ掲載されました。 詳細は下記URLをご覧ください。 https://kanto-meti-gov.note.jp/n/n755c6ca7ce0f?magazine_key=m88b6a42238c8', 'お知らせ');
+
+
+
+-- End of News Posts
+
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (267, 'en', '[Newspaper Article] New Factory to Start Operation Within the Month (Ibaraki Shimbun, September 13, 2018)', 'Yoshida Metal Working (Mito City, Shiogasaki, President Yoko Yoshida), a manufacturer of glove boxes for the nuclear industry, will start operating a new factory in the city in late September to strengthen its production system for its main product, glove boxes for the nuclear industry. The company will increase production of large products exceeding 5 tons in total weight to expand its受注orders. Sales are expected to grow by the time the company celebrates its 100th anniversary in five years...', 'News,Other');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (278, 'en', '[Newspaper Article] Yoshida, a Nuclear-Related Equipment Manufacturer, to Double Production Capacity with New Factory (Nihon Keizai Shimbun, September 20, 2018)', 'Aiming to win orders from other fields with an integrated process of design, manufacturing, and shipping. Yoshida (Mito City), a company that designs and manufactures equipment for nuclear facilities, has started operating a new factory in the city. By introducing large-scale equipment, the company has doubled its production capacity. It has established a system that can handle everything from design to assembly, testing, and shipping. In addition to its main business in the nuclear field, the company is aiming to receive orders from companies in other industries...', 'News,Other');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (340, 'en', '[Newspaper Article] New Factory for Sealed Containers Begins Operation (Nikkan Kogyo Shimbun, November 27, 2018)', 'Yoshida Expands into Medical Equipment and Energy Markets [Mito] Yoshida (Mito City, President Yoko Yoshida, 029-297-1005) has started operation of its second factory for manufacturing sealed containers called "glove boxes." By establishing a processing environment for large-scale equipment, the annual production capacity will increase from the previous two units to a maximum of eight units. The total investment is 1.6 billion yen. The company will strengthen its existing nuclear power field...', 'News,Other');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (548, 'en', '[Newspaper Article] Special Feature on Glove Boxes for Handling Radioactive Materials (Yomiuri Shimbun, February 17, 2019)', 'A "glove box" is used to handle radioactive materials in a sealed space. The main product of Yoshida in Mito City is indispensable at nuclear facilities, such as the Okuma Analysis and Research Center of the Japan Atomic Energy Agency (Fukushima Prefecture), which studies nuclear fuel debris from the Tokyo Electric Power Company''s Fukushima Daiichi Nuclear Power Plant. Workers must insert their hands into the attached gloves and work inside the box while being shielded from the outside air.', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (620, 'en', '[Published Article] Mito Techno Club Member Companies Factory Tour (Mito Chamber of Commerce and Industry Newsletter, April 1, 2019)', 'Published in the April issue of the Mito Chamber of Commerce and Industry Newsletter.', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (886, 'en', 'Registered as an Ibaraki Eco-Friendly Business', 'We have been registered as an "Ibaraki Eco-Friendly Business" for our environmentally friendly initiatives.', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1006, 'en', 'Droplet Infection Prevention Glove Box', 'We have designed a glove box for isolation from COVID-19 using the isolation technology of nuclear products. By attaching a HEPA filter to the intake and exhaust systems, we guarantee a particle collection rate of 99.97% or more for 0.3μm particles (preventing droplet infection). It is also possible to attach a pass box or a sterilization device. For medical...', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (705, 'en', '[Newspaper Article] Yoshida Selected as One of the 300 Thriving Small and Medium Enterprises for Productivity Improvement (Welding News, August 6, 2019)', 'A glove box is a device that allows an operator to safely handle materials inside a stainless steel box from the outside through gloves while the inside is kept under negative pressure and isolated from the outside air. It is used in various situations such as medical institutions, research institutes, and nuclear-related facilities, and requires high airtightness and seismic resistance. Yoshida (Mito City, Ibaraki Prefecture, President Yoko Yoshida) has its own design and machinery...', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1138, 'en', '[Newspaper Article] Mito Equipment Manufacturer and J-PARC Aim to Establish Analysis Method for Hayabusa2 Recovered Samples (Mito Keizai Shimbun, February 17, 2021)', 'The Mito-based equipment manufacturer "Yoshida" (Rokutanda-cho, Mito City) and the High-Energy Accelerator Research Organization "J-PARC" (Shirakata, Tokai-mura) are currently conducting research to establish an analysis method for the samples recovered by "Hayabusa2." The asteroid explorer "Hayabusa2" was launched in 2014 (Heisei 26) and reached the asteroid "Ryugu," located 300 million kilometers from Earth, in June 2018 (Heisei 30).', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1171, 'en', '[Newspaper Article] High-Efficiency Arc Welding System "D-Arc" Expanding! / Daihen (Welding News, May 24, 2021)', 'High praise for better-than-expected work efficiency and ease of use! Hopes for the development of "D-Arc" applicable to stainless steel welding. Yoshida Co., Ltd. (Mito City, Ibaraki Prefecture, President Yoko Yoshida) was founded in 1923. Initially, it started as a subcontractor for Hitachi, Ltd., but in March 1961, it received an order from the Japan Atomic Energy Agency (JAEA) for the trial production of a glove box.', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1180, 'en', '[Published Article] The Key to Collaboration Between Regional SMEs and Venture Companies (Sogyo Oen vol.21, March 2021, Liveness Publishing)', '', 'News,Research and Development');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1184, 'en', 'Value Creation Challenge Project through Collaboration between Mid-Sized/SMEs and Startups', 'The joint research on the "Development of a Remotely Operated Glove Box Using Avatar Robots" by Yoshida Co., Ltd. and MELTIN MMI Co., Ltd. was featured as a case study in the PDF magazine of the "Value Creation Challenge Project through Collaboration between Mid-Sized/SMEs and Startups." Please see the link below for details. https://www.kan...', 'News,Research and Development');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1186, 'en', 'Can you draw a concrete image with the knowledge of the field as a weapon?', 'An interview with companies that are practicing value creation activities in collaboration with mid-sized/SMEs and startups, and an article (column) related to the "Regional Industry Creation Seminar" held in Reiwa 2 (2020), featured a dialogue column between Yoshida Co., Ltd. and MELTIN MMI Co., Ltd. Please see the link below for details. https://www.kanto...', 'News,Research and Development');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1376, 'en', '[Newspaper Article] Decommissioning Training Center Completed in Tomioka for Remote Operation, Analysis, and Human Resource Development (Fukushima Minyu Shimbun, October 9, 2021)', 'An article about the installation of a mock iron cell and glove box for Tokyo Power Technology Fukushima Technical Center, manufactured by our company, was published in the Fukushima Minyu Shimbun. This facility will be a base for training human resources for the decommissioning of the Fukushima Daiichi Nuclear Power Plant. Please see the link below for details. https://www.minyu-net.com/n...', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1452, 'en', 'Notice Regarding Our Company''s Executive Personnel', '', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1505, 'en', '[Newspaper Article] Challenge Utilizing Plasma Welding, Expanding Application of Nuclear-Compatible Quality (Welding News, April 25, 2023)', 'Yoshida (Rokutanda-cho, Mito City, Ibaraki Prefecture, President Shusuke Yonekawa), which designs and manufactures glove boxes and containers for nuclear applications, was founded in 1923 and celebrated its 100th anniversary on April 1st of this year. Stainless steel is often used in the company''s products, and TIG welding has been used for many years. This time, we will report on the application of plasma welding, a new challenge, and future business development.', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1547, 'en', 'Published in the International Research Institute for Nuclear Decommissioning (IRID) FY2022 R&D Results', 'The enclosure manufactured by our company was introduced in the results of the "Development of Technology for Stepwise and Scaled-up Retrieval of Fuel Debris" conducted by the International Research Institute for Nuclear Decommissioning (IRID). https://irid.or.jp/wp-content/uploads/2023/06/2022007dandori20230...', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1646, 'en', 'Award for Outstanding Skills (Contemporary Master Craftsman)', 'We are pleased to announce that our employee, Hideo Koizumi, has been awarded the title of Outstanding Skills (Contemporary Master Craftsman) by the Ministry of Health, Labour and Welfare. We would like to express our sincere gratitude to all of you for your guidance. All of our employees are determined to devote themselves to the further development of Yoshida. We look forward to your continued guidance and encouragement.', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1681, 'en', 'Awarded the Medal with Yellow Ribbon', 'On November 3rd, our employee Hideo Koizumi was awarded the Medal with Yellow Ribbon in the autumn awards. We would like to express our sincere gratitude to everyone for their guidance. The award ceremony and audience for the autumn awards of Reiwa 6 will be held at the Hotel New Otani on November 26th. We look forward to your continued guidance and encouragement.', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1711, 'en', 'Awarded a contract from the Japan Aerospace Exploration Agency (JAXA) for the development of the Automated Experiment System (GEMPAK) for the Japanese Experiment Module "Kibo" on the International Space Station (ISS)', '', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1780, 'en', 'Tsugi no Jidai Interview Article Published', 'An interview article with our CEO was published in "Tsugi no Jidai". For details, please refer to the link below. https://smbiz.asahi.com/article/15624972', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1850, 'en', '[Publication] Case Study on the Use of Subsidies (Go-Tech Project)', 'A case study on the use of the Growth-Type Small and Medium Enterprise etc. Research and Development Support Project (Go-Tech Project) has been published on NSCP. For details, please see the URL below. https://jaif-bg.jp/nscp-succession/yoshida/', 'News');
+
+INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (1854, 'en', '[Publication] CEO Interview "Connecting the Dots to the Next 100 Years"', 'An interview with our CEO has been published on the Kanto Bureau of Economy, Trade and Industry''s projectchain. Please see the URL below for details. https://kanto-meti-gov.note.jp/n/n755c6ca7ce0f?magazine_key=m88b6a42238c8', 'News');

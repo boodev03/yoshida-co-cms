@@ -18,21 +18,17 @@ interface CategoryTranslation {
 interface Post {
   id: number;
   type: "news";
-  category: string; // Comma-separated list of category names
   thumbnail: string;
+  date: string;
 }
 
-interface ContentSection {
-  type: "html";
-  content: string;
-}
 
 interface PostTranslation {
   post_id: number;
   language_code: "ja" | "en";
   title: string;
   cardDescription: string;
-  sections: ContentSection[];
+  category: string;
 }
 
 // --- CSV ROW INTERFACE ---
@@ -48,6 +44,7 @@ interface CsvRow {
   _locale: string;
   _original_post: string;
   Status: string;
+  Date?: string;
 }
 
 // --- UTILITY FUNCTIONS ---
@@ -63,11 +60,20 @@ const escapeSqlString = (value: string | null | undefined): string => {
 };
 
 /**
- * Extracts the first image URL from the pipe-separated string.
+ * Extracts the first image URL from the pipe-separated string, skipping PDF files.
  */
 const getThumbnailUrl = (imageUrlField: string | undefined): string => {
   if (!imageUrlField) return "";
-  return imageUrlField.split("|")[0] || "";
+  const urls = imageUrlField.split("|");
+  
+  // Find the first URL that is an image file (not PDF)
+  for (const url of urls) {
+    if (url && !url.toLowerCase().endsWith('.pdf')) {
+      return url;
+    }
+  }
+  
+  return "";
 };
 
 /**
@@ -146,7 +152,7 @@ const generateNewsSqlScript = () => {
 
     const category: Category = { id: categoryId, type: "news" };
     sqlStatements.push(
-      `INSERT INTO categories (id, type) VALUES (${
+      `INSERT OR IGNORE INTO categories (id, type) VALUES (${
         category.id
       }, ${escapeSqlString(category.type)});`
     );
@@ -157,7 +163,7 @@ const generateNewsSqlScript = () => {
       category_name: catName,
     };
     sqlStatements.push(
-      `INSERT INTO category_translations (category_id, language_code, category_name) VALUES (${
+      `INSERT OR IGNORE INTO category_translations (category_id, language_code, category_name) VALUES (${
         catTranslation.category_id
       }, ${escapeSqlString(catTranslation.language_code)}, ${escapeSqlString(
         catTranslation.category_name
@@ -185,15 +191,15 @@ const generateNewsSqlScript = () => {
     const post: Post = {
       id: postId,
       type: "news",
-      category: postCategories,
       thumbnail: getThumbnailUrl(jaNews["Image URL"]),
+      date: jaNews.Date || "",
     };
     sqlStatements.push(
-      `INSERT INTO posts (id, type, category, thumbnail) VALUES (${
+      `INSERT OR IGNORE INTO posts (id, type, thumbnail, date) VALUES (${
         post.id
       }, ${escapeSqlString(post.type)}, ${escapeSqlString(
-        post.category
-      )}, ${escapeSqlString(post.thumbnail)});`
+        post.thumbnail
+      )}, ${escapeSqlString(post.date)});`
     );
 
     // Create Japanese translation
@@ -202,15 +208,15 @@ const generateNewsSqlScript = () => {
       language_code: "ja",
       title: jaNews.Title,
       cardDescription: createCardDescription(jaNews.Content),
-      sections: [{ type: "html", content: jaNews.Content }],
+      category: postCategories,
     };
     sqlStatements.push(
-      `INSERT INTO post_translations (post_id, language_code, title, cardDescription, sections) VALUES (${
+      `INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (${
         jaTranslation.post_id
       }, ${escapeSqlString(jaTranslation.language_code)}, ${escapeSqlString(
         jaTranslation.title
       )}, ${escapeSqlString(jaTranslation.cardDescription)}, ${escapeSqlString(
-        JSON.stringify(jaTranslation.sections)
+        jaTranslation.category
       )});`
     );
 
@@ -222,16 +228,16 @@ const generateNewsSqlScript = () => {
         language_code: "en",
         title: enNews.Title,
         cardDescription: createCardDescription(enNews.Content),
-        sections: [{ type: "html", content: enNews.Content }],
+        category: postCategories,
       };
       sqlStatements.push(
-        `INSERT INTO post_translations (post_id, language_code, title, cardDescription, sections) VALUES (${
+        `INSERT OR IGNORE INTO post_translations (post_id, language_code, title, cardDescription, category) VALUES (${
           enTranslation.post_id
         }, ${escapeSqlString(enTranslation.language_code)}, ${escapeSqlString(
           enTranslation.title
         )}, ${escapeSqlString(
           enTranslation.cardDescription
-        )}, ${escapeSqlString(JSON.stringify(enTranslation.sections))});\n`
+        )}, ${escapeSqlString(enTranslation.category)});\n`
       );
     } else {
       sqlStatements.push("\n");
