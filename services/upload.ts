@@ -3,14 +3,14 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client
 // Cloudflare R2 configuration using environment variables
 const r2Client = new S3Client({
     region: "auto",
-    endpoint: process.env.NEXT_PUBLIC_R2_ENDPOINT || `https://${process.env.NEXT_PUBLIC_R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    endpoint: process.env.R2_ENDPOINT || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
     credentials: {
-        accessKeyId: process.env.NEXT_PUBLIC_R2_ACCESS_KEY_ID || "",
-        secretAccessKey: process.env.NEXT_PUBLIC_R2_SECRET_ACCESS_KEY || "",
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
     },
 });
 
-const BUCKET_NAME = process.env.NEXT_PUBLIC_R2_BUCKET_NAME || "";
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || "";
 
 type UploadFileType = "image" | "video";
 
@@ -54,7 +54,7 @@ export const uploadFile = async ({
         await r2Client.send(command);
 
         // Return the public URL
-        const publicUrl = `${process.env.NEXT_PUBLIC_R2_PUBLIC_URL}/${key}`;
+        const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
         return publicUrl;
     } catch (error) {
         console.error("Error uploading file:", error);

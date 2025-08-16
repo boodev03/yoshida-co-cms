@@ -1,13 +1,13 @@
 name = "yoshida-co-cms"
 main = "src/index.js"
 compatibility_date = "2024-01-15"
-account_id = "88f6a466744ff689f8135bbcb68bd9d1"
+account_id = ""
 
 # D1 Database binding
 [[d1_databases]]
 binding = "DB"
 database_name = "yoshida-cor"
-database_id = "9fa43b8b-022b-4b7b-babd-8989490f7bd1"
+database_id = ""
 
 # Environment variables
 [vars]
