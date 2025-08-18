@@ -1,17 +1,17 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { authenticateUser } from "@/services/auth";
 
 interface User {
   id: string;
-  email: string;
-  name?: string;
+  username: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -29,21 +29,6 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Hardcoded users for development
-const HARDCODED_USERS = [
-  {
-    id: '1',
-    email: 'admin@yoshida.co',
-    password: 'admin123',
-    name: 'Admin User'
-  },
-  {
-    id: '2', 
-    email: 'editor@yoshida.co',
-    password: 'editor123',
-    name: 'Editor User'
-  }
-];
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
@@ -68,30 +53,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     checkAuth();
   }, []);
 
-  const signIn = async (email: string, password: string): Promise<void> => {
-    try {
-      // Find user in hardcoded list
-      const foundUser = HARDCODED_USERS.find(
-        u => u.email === email && u.password === password
-      );
+  const signIn = async (username: string, password: string): Promise<void> => {
+    // Authenticate against D1 database using the new pattern
+    const authResult = await authenticateUser(username, password);
 
-      if (!foundUser) {
-        throw new Error('Invalid email or password');
-      }
-
-      const userData: User = {
-        id: foundUser.id,
-        email: foundUser.email,
-        name: foundUser.name
-      };
-
-      // Store in localStorage and state
-      localStorage.setItem('auth_user', JSON.stringify(userData));
-      setUser(userData);
-
-    } catch (error) {
-      throw new Error(error instanceof Error ? error.message : "Failed to sign in");
+    if (!authResult.success) {
+      // Throw the error message for the UI to catch and display
+      throw new Error(authResult.error || 'Authentication failed');
     }
+
+    if (!authResult.user) {
+      throw new Error('No user data received');
+    }
+
+    const userData: User = {
+      id: authResult.user.id.toString(),
+      username: authResult.user.username
+    };
+
+    // Store in localStorage and state
+    localStorage.setItem('auth_user', JSON.stringify(userData));
+    setUser(userData);
   };
 
   const logout = async (): Promise<void> => {
