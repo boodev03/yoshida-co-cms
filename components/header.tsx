@@ -21,17 +21,17 @@ export default function Header() {
   const { language, setLanguage, isJapanese } = useLanguage();
 
   const navItems = [
-    { 
-      name: isJapanese ? "事例" : "Cases", 
-      href: "/cases" 
+    {
+      name: isJapanese ? "事例" : "Cases",
+      href: "/cases",
     },
-    { 
-      name: isJapanese ? "ニュース" : "News", 
-      href: "/news" 
+    {
+      name: isJapanese ? "ニュース" : "News",
+      href: "/news",
     },
-    { 
-      name: isJapanese ? "設備" : "Equipments", 
-      href: "/equipments" 
+    {
+      name: isJapanese ? "設備" : "Equipments",
+      href: "/equipments",
     },
   ];
 
@@ -76,21 +76,27 @@ export default function Header() {
             {/* Language Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
                   <Languages className="h-4 w-4" />
-                  <span className="text-sm font-medium">{language.toUpperCase()}</span>
+                  <span className="text-sm font-medium">
+                    {language.toUpperCase()}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem 
-                  onClick={() => setLanguage('ja')}
-                  className={language === 'ja' ? 'bg-gray-100' : ''}
+                <DropdownMenuItem
+                  onClick={() => setLanguage("ja")}
+                  className={language === "ja" ? "bg-gray-100" : ""}
                 >
                   🇯🇵 日本語 (Japanese)
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setLanguage('en')}
-                  className={language === 'en' ? 'bg-gray-100' : ''}
+                <DropdownMenuItem
+                  onClick={() => setLanguage("en")}
+                  className={language === "en" ? "bg-gray-100" : ""}
                 >
                   🇺🇸 English
                 </DropdownMenuItem>
@@ -100,13 +106,20 @@ export default function Header() {
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center space-x-2"
+                  >
                     <User className="h-4 w-4" />
-                    <span className="text-sm">{user.email}</span>
+                    <span className="text-sm">{user.username}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-red-600"
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     {isJapanese ? "ログアウト" : "Logout"}
                   </DropdownMenuItem>
