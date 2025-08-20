@@ -1,7 +1,7 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { uploadFile, deleteFile } from "@/services/upload";
+import { uploadFile, deleteFileByUrl } from "@/services/upload-client";
 import { useProductStore } from "@/stores/product-detail";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -42,13 +42,9 @@ export default function Video() {
         });
 
         // Remove old video from bucket if exists
-        if (
-          videoUrl &&
-          !videoUrl.startsWith("blob:") &&
-          videoSection?.data?.path
-        ) {
+        if (videoUrl && !videoUrl.startsWith("blob:")) {
           try {
-            await deleteFile(videoSection.data.path);
+            await deleteFileByUrl(videoUrl);
           } catch (error) {
             console.warn("Failed to remove old video:", error);
           }

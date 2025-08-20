@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { uploadFile } from "@/services/upload";
+import { uploadFile } from "@/services/upload-client";
 import { useProductStore } from "@/stores/product-detail";
 import { ImagePlus, Trash2, Upload } from "lucide-react";
 import { useCallback, useMemo } from "react";

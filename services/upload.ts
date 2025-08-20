@@ -1,16 +1,22 @@
+import "server-only";
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 
-// Cloudflare R2 configuration using environment variables
+// Cloudflare R2 configuration using server-side environment variables
+const R2_ENDPOINT = process.env.R2_ENDPOINT || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
+const R2_ACCESS_KEY_ID = process.env.R2_ACCESS_KEY_ID || "";
+const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY || "";
+const BUCKET_NAME = process.env.R2_BUCKET_NAME || "";
+const R2_PUBLIC_URL = process.env.R2_PUBLIC_URL || "";
+
 const r2Client = new S3Client({
     region: "auto",
-    endpoint: process.env.R2_ENDPOINT || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    endpoint: R2_ENDPOINT,
+    forcePathStyle: true,
     credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+        accessKeyId: R2_ACCESS_KEY_ID,
+        secretAccessKey: R2_SECRET_ACCESS_KEY,
     },
 });
-
-const BUCKET_NAME = process.env.R2_BUCKET_NAME || "";
 
 type UploadFileType = "image" | "video";
 
@@ -26,6 +32,18 @@ export const uploadFile = async ({
     path = "uploads",
 }: UploadOptions): Promise<string> => {
     try {
+        if (!BUCKET_NAME) {
+            throw new Error("R2 bucket name is not configured. Set R2_BUCKET_NAME.");
+        }
+        if (!R2_ENDPOINT) {
+            throw new Error("R2 endpoint is not configured. Set R2_ENDPOINT or R2_ACCOUNT_ID.");
+        }
+        if (!R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
+            throw new Error("R2 credentials are not configured. Set R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY.");
+        }
+        if (!R2_PUBLIC_URL) {
+            throw new Error("R2 public URL is not configured. Set R2_PUBLIC_URL.");
+        }
         // Validate file type
         if (type === "image" && !file.type.startsWith("image/")) {
             throw new Error("Invalid file type. Expected an image file.");
@@ -39,22 +57,22 @@ export const uploadFile = async ({
         const uniqueFilename = `${timestamp}_${file.name}`;
         const key = `${path}/${type}s/${uniqueFilename}`;
 
-        // Convert File to Buffer for R2 upload
-        const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        // Convert File to Buffer for R2 upload (server side)
+        const arrayBuffer = await (file as File).arrayBuffer();
+        const body = Buffer.from(arrayBuffer);
 
         // Upload to R2
         const command = new PutObjectCommand({
             Bucket: BUCKET_NAME,
             Key: key,
-            Body: buffer,
+            Body: body,
             ContentType: file.type,
         });
 
         await r2Client.send(command);
 
         // Return the public URL
-        const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
+        const publicUrl = `${R2_PUBLIC_URL}/${key}`;
         return publicUrl;
     } catch (error) {
         console.error("Error uploading file:", error);

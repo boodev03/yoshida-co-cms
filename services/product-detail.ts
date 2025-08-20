@@ -242,7 +242,7 @@ export const getProduct = async (
         type: data.type || "cases",
         category: data.category || "",
         thumbnail: data.thumbnail || "",
-        sections: JSON.parse(data.sections) || [],
+        sections: typeof data.sections === "string" ? JSON.parse(data.sections) : data.sections || [],
         ogImage: data.ogImage || "",
         ogTwitter: data.ogTwitter || "",
         date: data.date || "",

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { uploadFile } from "@/services/upload";
+import { uploadFile } from "@/services/upload-client";
 import { useProductStore } from "@/stores/product-detail";
 import { NormalContentData } from "@/types/product";
 import { ArrowLeftRight, Trash2, Upload } from "lucide-react";
