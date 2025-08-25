@@ -17,6 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useNews } from "@/hooks/useNews";
 import { deleteNews } from "@/services/news";
 import { saveNews } from "@/services/news";
@@ -35,6 +43,8 @@ export default function News() {
   const [sort, setSort] = useState<"latest">("latest");
   const [isCreating, setIsCreating] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [newsToDelete, setNewsToDelete] = useState<Product | null>(null);
   const { language, isJapanese } = useLanguage();
   const router = useRouter();
   const {
@@ -126,6 +136,23 @@ export default function News() {
     }
   };
 
+  const openDeleteModal = (newsItem: Product) => {
+    setNewsToDelete(newsItem);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setNewsToDelete(null);
+  };
+
+  const confirmDelete = async () => {
+    if (newsToDelete) {
+      await handleDeleteNews(newsToDelete.id!);
+      closeDeleteModal();
+    }
+  };
+
   return (
     <div className="space-y-4 container mx-auto py-10 flex flex-col flex-1">
       <div className="flex gap-4 mb-4">
@@ -207,12 +234,10 @@ export default function News() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleDeleteNews(newsItem.id!)}
+                        onClick={() => openDeleteModal(newsItem)}
                         disabled={deletingIds.has(newsItem.id!)}
                       >
-                        {deletingIds.has(newsItem.id!)
-                          ? (isJapanese ? "削除中..." : "Deleting...")
-                          : (isJapanese ? "削除" : "Delete")}
+                        {isJapanese ? "削除" : "Delete"}
                       </Button>
                     </div>
                   </TableCell>
@@ -276,6 +301,40 @@ export default function News() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {isJapanese ? "ニュースの削除確認" : "Confirm News Deletion"}
+            </DialogTitle>
+            <DialogDescription>
+              {isJapanese
+                ? `「${newsToDelete?.title || ""}」を削除してもよろしいですか？この操作は元に戻せません。`
+                : `Are you sure you want to delete "${newsToDelete?.title || ""}"? This action cannot be undone.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDeleteModal}>
+              {isJapanese ? "キャンセル" : "Cancel"}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deletingIds.has(newsToDelete?.id!)}
+            >
+              {deletingIds.has(newsToDelete?.id!)
+                ? isJapanese
+                  ? "削除中..."
+                  : "Deleting..."
+                : isJapanese
+                ? "削除"
+                : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -17,6 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useProducts } from "@/hooks/useProducts";
 import { deleteProduct } from "@/services/product";
 import { saveProduct } from "@/services/product-detail";
@@ -35,6 +43,8 @@ export default function Products() {
   const [sort, setSort] = useState<"latest">("latest");
   const [isCreating, setIsCreating] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const { language, isJapanese } = useLanguage();
   const router = useRouter();
   const {
@@ -133,6 +143,23 @@ export default function Products() {
     }
   };
 
+  const openDeleteModal = (product: Product) => {
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
+  };
+
+  const confirmDelete = async () => {
+    if (productToDelete) {
+      await handleDeleteProduct(productToDelete.id!);
+      closeDeleteModal();
+    }
+  };
+
   return (
     <div className="space-y-4 container mx-auto py-10 flex flex-col flex-1">
       <div className="flex gap-4 mb-4">
@@ -221,16 +248,10 @@ export default function Products() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleDeleteProduct(product.id!)}
+                        onClick={() => openDeleteModal(product)}
                         disabled={deletingIds.has(product.id!)}
                       >
-                        {deletingIds.has(product.id!)
-                          ? isJapanese
-                            ? "削除中..."
-                            : "Deleting..."
-                          : isJapanese
-                          ? "削除"
-                          : "Delete"}
+                        {isJapanese ? "削除" : "Delete"}
                       </Button>
                     </div>
                   </TableCell>
@@ -294,6 +315,40 @@ export default function Products() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {isJapanese ? "製品の削除確認" : "Confirm Product Deletion"}
+            </DialogTitle>
+            <DialogDescription>
+              {isJapanese
+                ? `「${productToDelete?.title || ""}」を削除してもよろしいですか？この操作は元に戻せません。`
+                : `Are you sure you want to delete "${productToDelete?.title || ""}"? This action cannot be undone.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDeleteModal}>
+              {isJapanese ? "キャンセル" : "Cancel"}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deletingIds.has(productToDelete?.id!)}
+            >
+              {deletingIds.has(productToDelete?.id!)
+                ? isJapanese
+                  ? "削除中..."
+                  : "Deleting..."
+                : isJapanese
+                ? "削除"
+                : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

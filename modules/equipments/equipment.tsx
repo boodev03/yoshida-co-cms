@@ -17,6 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useEquipments } from "@/hooks/useEquipments";
 import { deleteEquipment } from "@/services/equipment";
 import { saveEquipment } from "@/services/equipment";
@@ -35,6 +43,8 @@ export default function Equipments() {
   const [sort, setSort] = useState<"latest">("latest");
   const [isCreating, setIsCreating] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [equipmentToDelete, setEquipmentToDelete] = useState<Product | null>(null);
   const { language, isJapanese } = useLanguage();
   const router = useRouter();
   const {
@@ -126,6 +136,23 @@ export default function Equipments() {
     }
   };
 
+  const openDeleteModal = (equipment: Product) => {
+    setEquipmentToDelete(equipment);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setEquipmentToDelete(null);
+  };
+
+  const confirmDelete = async () => {
+    if (equipmentToDelete) {
+      await handleDeleteEquipment(equipmentToDelete.id!);
+      closeDeleteModal();
+    }
+  };
+
   return (
     <div className="space-y-4 container mx-auto py-10 flex flex-col flex-1">
       <div className="flex gap-4 mb-4">
@@ -207,12 +234,10 @@ export default function Equipments() {
                       <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => handleDeleteEquipment(equipment.id!)}
+                        onClick={() => openDeleteModal(equipment)}
                         disabled={deletingIds.has(equipment.id!)}
                       >
-                        {deletingIds.has(equipment.id!)
-                          ? (isJapanese ? "削除中..." : "Deleting...")
-                          : (isJapanese ? "削除" : "Delete")}
+                        {isJapanese ? "削除" : "Delete"}
                       </Button>
                     </div>
                   </TableCell>
@@ -276,6 +301,40 @@ export default function Equipments() {
           </PaginationItem>
         </PaginationContent>
       </Pagination>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {isJapanese ? "設備の削除確認" : "Confirm Equipment Deletion"}
+            </DialogTitle>
+            <DialogDescription>
+              {isJapanese
+                ? `「${equipmentToDelete?.title || ""}」を削除してもよろしいですか？この操作は元に戻せません。`
+                : `Are you sure you want to delete "${equipmentToDelete?.title || ""}"? This action cannot be undone.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={closeDeleteModal}>
+              {isJapanese ? "キャンセル" : "Cancel"}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deletingIds.has(equipmentToDelete?.id!)}
+            >
+              {deletingIds.has(equipmentToDelete?.id!)
+                ? isJapanese
+                  ? "削除中..."
+                  : "Deleting..."
+                : isJapanese
+                ? "削除"
+                : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
