@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { uploadFile } from "@/services/upload-client";
 import { useProductStore } from "@/stores/product-detail";
-import { Trash2, Upload } from "lucide-react";
+import { Trash2, Upload, Calendar } from "lucide-react";
 import Category from "./category";
 
 interface ProductInformationProps {
@@ -28,7 +28,7 @@ export default function ProductInformation({
     try {
       const publicUrl = await uploadFile({
         file,
-        type: "image"
+        type: "image",
       });
       updateField("thumbnail", publicUrl);
     } catch (error) {
@@ -38,6 +38,28 @@ export default function ProductInformation({
 
   const removeImage = () => {
     updateField("thumbnail", "");
+  };
+
+  // Convert date string to YYYY-MM-DD format for input
+  const formatDateForInput = (dateString: string) => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "";
+      return date.toISOString().split("T")[0];
+    } catch {
+      return "";
+    }
+  };
+
+  // Handle date change
+  const handleDateChange = (dateString: string) => {
+    if (dateString) {
+      const date = new Date(dateString);
+      updateField("date", date.toISOString());
+    } else {
+      updateField("date", "");
+    }
   };
 
   return (
@@ -66,6 +88,24 @@ export default function ProductInformation({
               categories={categories}
               onSaveCategory={onSaveCategory}
             />
+
+            {/* Date */}
+            <div className="space-y-2">
+              <Label
+                htmlFor="date"
+                className="text-sm font-medium flex items-center gap-2"
+              >
+                <Calendar className="w-4 h-4" />
+                作成日
+              </Label>
+              <Input
+                id="date"
+                type="date"
+                value={formatDateForInput(product.date)}
+                onChange={(e) => handleDateChange(e.target.value)}
+                className="w-full"
+              />
+            </div>
 
             {/* Description */}
             <div className="space-y-2">

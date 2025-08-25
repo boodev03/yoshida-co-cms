@@ -30,7 +30,7 @@ import { deleteEquipment } from "@/services/equipment";
 import { saveEquipment } from "@/services/equipment";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Product } from "@/types/product";
-import { ArrowDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -40,11 +40,12 @@ export default function Equipments() {
   const [page, setPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [searchTitle, setSearchTitle] = useState("");
-  const [sort, setSort] = useState<"latest">("latest");
   const [isCreating, setIsCreating] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [equipmentToDelete, setEquipmentToDelete] = useState<Product | null>(null);
+  const [equipmentToDelete, setEquipmentToDelete] = useState<Product | null>(
+    null
+  );
   const { language, isJapanese } = useLanguage();
   const router = useRouter();
   const {
@@ -52,11 +53,10 @@ export default function Equipments() {
     isLoading,
     error,
     refetch,
-  } = useEquipments({ 
-    searchTitle, 
-    sort, 
+  } = useEquipments({
+    searchTitle,
     language,
-    type: 'equipments'
+    type: "equipments",
   });
 
   if (isLoading)
@@ -68,7 +68,8 @@ export default function Equipments() {
   if (error)
     return (
       <div className="text-red-600 text-center py-10">
-        {isJapanese ? "設備の読み込みエラー: " : "Error loading equipments: "}{error.message}
+        {isJapanese ? "設備の読み込みエラー: " : "Error loading equipments: "}
+        {error.message}
       </div>
     );
   if (!equipments)
@@ -85,10 +86,6 @@ export default function Equipments() {
     page * itemsPerPage
   );
 
-  const handleSort = (sortType: "latest") => {
-    setSort(sortType);
-  };
-
   const handleCreateNewEquipment = async () => {
     try {
       setIsCreating(true);
@@ -97,7 +94,7 @@ export default function Equipments() {
         id: 0, // Will be set by database
         title: "",
         category: "",
-        type: 'equipments' as const,
+        type: "equipments" as const,
         thumbnail: "",
         sections: [],
         ogImage: "",
@@ -106,7 +103,7 @@ export default function Equipments() {
         cardDescription: "",
         metaTitle: "",
         metaKeywords: "",
-        metaDescription: ""
+        metaDescription: "",
       } as Product;
       const equipmentId = await saveEquipment(emptyEquipment, language);
       // Redirect to the equipment detail page
@@ -122,11 +119,17 @@ export default function Equipments() {
     try {
       setDeletingIds((prev) => new Set(prev).add(equipmentId));
       await deleteEquipment(equipmentId);
-      toast.success(isJapanese ? "設備が正常に削除されました" : "Equipment deleted successfully");
+      toast.success(
+        isJapanese
+          ? "設備が正常に削除されました"
+          : "Equipment deleted successfully"
+      );
       refetch(); // Refresh the equipments list
     } catch (error) {
       console.error("Error deleting equipment:", error);
-      toast.error(isJapanese ? "設備の削除に失敗しました" : "Failed to delete equipment");
+      toast.error(
+        isJapanese ? "設備の削除に失敗しました" : "Failed to delete equipment"
+      );
     } finally {
       setDeletingIds((prev) => {
         const newSet = new Set(prev);
@@ -166,10 +169,13 @@ export default function Equipments() {
           />
         </div>
         <Button onClick={handleCreateNewEquipment} disabled={isCreating}>
-          {isCreating 
-            ? (isJapanese ? "作成中..." : "Creating...") 
-            : (isJapanese ? "新しい設備を作成" : "Create New Equipment")
-          }
+          {isCreating
+            ? isJapanese
+              ? "作成中..."
+              : "Creating..."
+            : isJapanese
+            ? "新しい設備を作成"
+            : "Create New Equipment"}
         </Button>
       </div>
 
@@ -187,14 +193,8 @@ export default function Equipments() {
               <TableHead className="text-gray-900 font-semibold">
                 {isJapanese ? "タイプ" : "Type"}
               </TableHead>
-              <TableHead
-                onClick={() => handleSort("latest")}
-                className="cursor-pointer text-gray-900 font-semibold hover:text-gray-700"
-              >
-                {isJapanese ? "更新日" : "Updated At"}
-                {sort === "latest" && (
-                  <ArrowDown className="inline ml-1 h-4 w-4 text-gray-600" />
-                )}
+              <TableHead className="text-gray-900 font-semibold">
+                {isJapanese ? "日付" : "Date"}
               </TableHead>
               <TableHead className="text-gray-900 font-semibold">
                 {isJapanese ? "操作" : "Actions"}
@@ -215,14 +215,18 @@ export default function Equipments() {
                     {equipment.category}
                   </TableCell>
                   <TableCell className="text-gray-700">
-                    {isJapanese ? 
-                      (equipment.type === 'cases' ? '事例' : 
-                       equipment.type === 'news' ? 'ニュース' : 
-                       equipment.type === 'equipments' ? '設備' : equipment.type) 
+                    {isJapanese
+                      ? equipment.type === "cases"
+                        ? "事例"
+                        : equipment.type === "news"
+                        ? "ニュース"
+                        : equipment.type === "equipments"
+                        ? "設備"
+                        : equipment.type
                       : equipment.type}
                   </TableCell>
                   <TableCell className="text-gray-600">
-                    {new Date(equipment.updatedAt || 0).toLocaleDateString()}
+                    {equipment.date || "未設定"}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
@@ -311,8 +315,12 @@ export default function Equipments() {
             </DialogTitle>
             <DialogDescription>
               {isJapanese
-                ? `「${equipmentToDelete?.title || ""}」を削除してもよろしいですか？この操作は元に戻せません。`
-                : `Are you sure you want to delete "${equipmentToDelete?.title || ""}"? This action cannot be undone.`}
+                ? `「${
+                    equipmentToDelete?.title || ""
+                  }」を削除してもよろしいですか？この操作は元に戻せません。`
+                : `Are you sure you want to delete "${
+                    equipmentToDelete?.title || ""
+                  }"? This action cannot be undone.`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

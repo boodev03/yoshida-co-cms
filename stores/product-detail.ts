@@ -36,6 +36,7 @@ const initialProduct: Product = {
     ogImage: '',
     ogTwitter: '',
     date: '',
+    display_order: 0,
     type: 'cases'
 };
 

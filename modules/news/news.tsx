@@ -30,7 +30,7 @@ import { deleteNews } from "@/services/news";
 import { saveNews } from "@/services/news";
 import { Product } from "@/types/product";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -40,7 +40,6 @@ export default function News() {
   const [page, setPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [searchTitle, setSearchTitle] = useState("");
-  const [sort, setSort] = useState<"latest">("latest");
   const [isCreating, setIsCreating] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -52,11 +51,10 @@ export default function News() {
     isLoading,
     error,
     refetch,
-  } = useNews({ 
-    searchTitle, 
-    sort, 
+  } = useNews({
+    searchTitle,
     language,
-    type: 'news' // Filter to only show news type posts
+    type: "news", // Filter to only show news type posts
   });
 
   if (isLoading)
@@ -68,7 +66,8 @@ export default function News() {
   if (error)
     return (
       <div className="text-red-600 text-center py-10">
-        {isJapanese ? "ニュースの読み込みエラー: " : "Error loading news: "}{error.message}
+        {isJapanese ? "ニュースの読み込みエラー: " : "Error loading news: "}
+        {error.message}
       </div>
     );
   if (!news)
@@ -85,10 +84,6 @@ export default function News() {
     page * itemsPerPage
   );
 
-  const handleSort = (sortType: "latest") => {
-    setSort(sortType);
-  };
-
   const handleCreateNewNews = async () => {
     try {
       setIsCreating(true);
@@ -97,7 +92,7 @@ export default function News() {
         id: 0, // Will be set by database
         title: "",
         category: "",
-        type: 'news' as const,
+        type: "news" as const,
         thumbnail: "",
         sections: [],
         ogImage: "",
@@ -106,7 +101,7 @@ export default function News() {
         cardDescription: "",
         metaTitle: "",
         metaKeywords: "",
-        metaDescription: ""
+        metaDescription: "",
       } as Product;
       const newsId = await saveNews(emptyNews, language);
       // Redirect to the news detail page
@@ -122,11 +117,17 @@ export default function News() {
     try {
       setDeletingIds((prev) => new Set(prev).add(newsId));
       await deleteNews(newsId);
-      toast.success(isJapanese ? "ニュースが正常に削除されました" : "News deleted successfully");
+      toast.success(
+        isJapanese
+          ? "ニュースが正常に削除されました"
+          : "News deleted successfully"
+      );
       refetch(); // Refresh the news list
     } catch (error) {
       console.error("Error deleting news:", error);
-      toast.error(isJapanese ? "ニュースの削除に失敗しました" : "Failed to delete news");
+      toast.error(
+        isJapanese ? "ニュースの削除に失敗しました" : "Failed to delete news"
+      );
     } finally {
       setDeletingIds((prev) => {
         const newSet = new Set(prev);
@@ -166,10 +167,13 @@ export default function News() {
           />
         </div>
         <Button onClick={handleCreateNewNews} disabled={isCreating}>
-          {isCreating 
-            ? (isJapanese ? "作成中..." : "Creating...") 
-            : (isJapanese ? "新しいニュースを作成" : "Create New News")
-          }
+          {isCreating
+            ? isJapanese
+              ? "作成中..."
+              : "Creating..."
+            : isJapanese
+            ? "新しいニュースを作成"
+            : "Create New News"}
         </Button>
       </div>
 
@@ -187,14 +191,8 @@ export default function News() {
               <TableHead className="text-gray-900 font-semibold">
                 {isJapanese ? "タイプ" : "Type"}
               </TableHead>
-              <TableHead
-                onClick={() => handleSort("latest")}
-                className="cursor-pointer text-gray-900 font-semibold hover:text-gray-700"
-              >
-                {isJapanese ? "更新日" : "Updated At"}
-                {sort === "latest" && (
-                  <ArrowDown className="inline ml-1 h-4 w-4 text-gray-600" />
-                )}
+              <TableHead className="text-gray-900 font-semibold">
+                {isJapanese ? "日付" : "Date"}
               </TableHead>
               <TableHead className="text-gray-900 font-semibold">
                 {isJapanese ? "操作" : "Actions"}
@@ -215,14 +213,18 @@ export default function News() {
                     {newsItem.category}
                   </TableCell>
                   <TableCell className="text-gray-700">
-                    {isJapanese ? 
-                      (newsItem.type === 'cases' ? '事例' : 
-                       newsItem.type === 'news' ? 'ニュース' : 
-                       newsItem.type === 'equipments' ? '設備' : newsItem.type) 
+                    {isJapanese
+                      ? newsItem.type === "cases"
+                        ? "事例"
+                        : newsItem.type === "news"
+                        ? "ニュース"
+                        : newsItem.type === "equipments"
+                        ? "設備"
+                        : newsItem.type
                       : newsItem.type}
                   </TableCell>
                   <TableCell className="text-gray-600">
-                    {new Date(newsItem.updatedAt || 0).toLocaleDateString()}
+                    {newsItem.date ? newsItem.date.split("T")[0] : "未設定"}
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
@@ -311,8 +313,12 @@ export default function News() {
             </DialogTitle>
             <DialogDescription>
               {isJapanese
-                ? `「${newsToDelete?.title || ""}」を削除してもよろしいですか？この操作は元に戻せません。`
-                : `Are you sure you want to delete "${newsToDelete?.title || ""}"? This action cannot be undone.`}
+                ? `「${
+                    newsToDelete?.title || ""
+                  }」を削除してもよろしいですか？この操作は元に戻せません。`
+                : `Are you sure you want to delete "${
+                    newsToDelete?.title || ""
+                  }"? This action cannot be undone.`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -322,9 +328,9 @@ export default function News() {
             <Button
               variant="destructive"
               onClick={confirmDelete}
-              disabled={deletingIds.has(newsToDelete?.id!)}
+              disabled={deletingIds.has(newsToDelete?.id ?? 0)}
             >
-              {deletingIds.has(newsToDelete?.id!)
+              {deletingIds.has(newsToDelete?.id ?? 0)
                 ? isJapanese
                   ? "削除中..."
                   : "Deleting..."

@@ -106,6 +106,7 @@ export interface Product {
   ogImage: string;
   ogTwitter: string;
   date: string; // Date field for post date
+  display_order?: number; // Display order for controlling rendering sequence
   createdAt?: number;
   updatedAt?: number;
 

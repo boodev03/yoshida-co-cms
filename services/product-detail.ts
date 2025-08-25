@@ -27,6 +27,7 @@ export const saveProduct = async (
                     ogImage = ?, 
                     ogTwitter = ?, 
                     date = ?,
+                    display_order = ?,
                     updatedAt = ? 
                 WHERE id = ?`,
         [
@@ -35,6 +36,7 @@ export const saveProduct = async (
           product.ogImage || "",
           product.ogTwitter || "",
           product.date || "",
+          product.display_order || 0,
           now,
           product.id,
         ]
@@ -128,15 +130,17 @@ export const saveProduct = async (
                     ogImage, 
                     ogTwitter, 
                     date,
+                    display_order,
                     createdAt, 
                     updatedAt
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           product.type || "cases",
           product.thumbnail || "",
           product.ogImage || "",
           product.ogTwitter || "",
           product.date || "",
+          product.display_order || 0,
           product.createdAt || now,
           now,
         ]
@@ -211,6 +215,7 @@ export const getProduct = async (
                 p.ogImage,
                 p.ogTwitter,
                 p.date,
+                p.display_order,
                 p.createdAt,
                 p.updatedAt,
                 pt.category,
@@ -246,6 +251,7 @@ export const getProduct = async (
         ogImage: data.ogImage || "",
         ogTwitter: data.ogTwitter || "",
         date: data.date || "",
+        display_order: data.display_order || 0,
         createdAt: data.createdAt,
         updatedAt: data.updatedAt,
         title: data.title || "",

@@ -26,6 +26,7 @@ export const getAllProducts = async (options?: {
                 p.ogImage,
                 p.ogTwitter,
                 p.date,
+                p.display_order,
                 p.createdAt,
                 p.updatedAt,
                 pt.category,
@@ -59,9 +60,9 @@ export const getAllProducts = async (options?: {
             params.push(`%${options.searchTitle}%`);
         }
 
-        // Apply sorting - we only sort by updatedAt now
+        // Apply sorting - primary by display_order, secondary by updatedAt
         if (options?.sort === 'latest' || !options?.sort) {
-            query += ' ORDER BY p.updatedAt DESC';
+            query += ' ORDER BY p.display_order ASC, p.updatedAt DESC';
         }
 
         // Apply limit if specified
@@ -89,6 +90,7 @@ export const getAllProducts = async (options?: {
                 ogImage: item.ogImage || '',
                 ogTwitter: item.ogTwitter || '',
                 date: item.date || '',
+                display_order: item.display_order || 0,
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt,
                 title: item.title || '',

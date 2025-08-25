@@ -4,12 +4,6 @@ import Loading from "@/components/loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from "@/components/ui/pagination";
-import {
   Table,
   TableBody,
   TableCell,
@@ -28,23 +22,125 @@ import {
 import { useProducts } from "@/hooks/useProducts";
 import { deleteProduct } from "@/services/product";
 import { saveProduct } from "@/services/product-detail";
+import { reorderPosts } from "@/services/reorder";
 import { Product } from "@/types/product";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { ArrowDown, ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ArrowDown, Search, GripVertical } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+// Sortable row component
+function SortableTableRow({
+  product,
+  isJapanese,
+  deletingIds,
+  openDeleteModal,
+}: {
+  product: Product;
+  isJapanese: boolean;
+  deletingIds: Set<number>;
+  openDeleteModal: (product: Product) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: product.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <TableRow ref={setNodeRef} style={style} className="hover:bg-gray-50">
+      <TableCell className="font-medium text-gray-900">
+        <div className="flex items-center gap-2">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded"
+          >
+            <GripVertical className="w-4 h-4 text-gray-400" />
+          </div>
+          {product.id}
+        </div>
+      </TableCell>
+      <TableCell className="text-gray-700 max-w-48 whitespace-pre-wrap break-words">
+        {product.title}
+      </TableCell>
+      <TableCell className="text-gray-700">{product.category}</TableCell>
+      <TableCell className="text-gray-700">
+        {isJapanese
+          ? product.type === "cases"
+            ? "事例"
+            : product.type === "news"
+            ? "ニュース"
+            : product.type === "equipments"
+            ? "設備"
+            : product.type
+          : product.type}
+      </TableCell>
+      <TableCell className="text-gray-600">
+        {product.display_order || 0}
+      </TableCell>
+      <TableCell className="text-gray-600">
+        {product.date.split("T")[0] || "未設定"}
+      </TableCell>
+      <TableCell>
+        <div className="flex gap-2">
+          <Button asChild size="sm">
+            <Link href={`/cases/${product.id}`}>
+              {isJapanese ? "表示" : "View"}
+            </Link>
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => openDeleteModal(product)}
+            disabled={deletingIds.has(product.id!)}
+          >
+            {isJapanese ? "削除" : "Delete"}
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
 
 export default function Products() {
-  const [page, setPage] = useState(1);
-  const [itemsPerPage] = useState(10);
   const [searchTitle, setSearchTitle] = useState("");
   const [sort, setSort] = useState<"latest">("latest");
   const [isCreating, setIsCreating] = useState(false);
   const [deletingIds, setDeletingIds] = useState<Set<number>>(new Set());
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [localProducts, setLocalProducts] = useState<Product[]>([]);
+  const [lastSavedOrder, setLastSavedOrder] = useState<number[]>([]);
+  const [isReordering, setIsReordering] = useState(false);
   const { language, isJapanese } = useLanguage();
   const router = useRouter();
   const {
@@ -58,6 +154,82 @@ export default function Products() {
     language,
     type: "cases", // Filter to only show cases type products
   });
+
+  // Update local products when server data changes
+  useEffect(() => {
+    if (products) {
+      setLocalProducts(products);
+      setLastSavedOrder(products.map((p) => p.id));
+    }
+  }, [products]);
+
+  // Check if current order differs from saved order
+  const hasUnsavedChanges =
+    JSON.stringify(localProducts.map((p) => p.id)) !==
+    JSON.stringify(lastSavedOrder);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Handle drag and drop reordering with optimistic updates
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || !localProducts || active.id === over.id) return;
+
+    const oldIndex = localProducts.findIndex((item) => item.id === active.id);
+    const newIndex = localProducts.findIndex((item) => item.id === over.id);
+
+    if (oldIndex !== newIndex) {
+      // Optimistic update - immediately show the new order
+      const reorderedItems = arrayMove(localProducts, oldIndex, newIndex);
+      setLocalProducts(reorderedItems);
+
+      try {
+        setIsReordering(true);
+        const postIds = reorderedItems.map((item) => item.id);
+
+        // Debounced API call to avoid multiple rapid requests
+        const timeoutId = setTimeout(async () => {
+          try {
+            await reorderPosts(postIds, "cases");
+            // Update last saved order
+            setLastSavedOrder(reorderedItems.map((item) => item.id));
+            // Only refetch if there are no other pending changes
+            if (!isReordering) {
+              await refetch();
+            }
+            toast.success(
+              isJapanese ? "順序を保存しました" : "Order saved successfully"
+            );
+          } catch (error) {
+            console.error("Error reordering products:", error);
+            toast.error(
+              isJapanese ? "順序の更新に失敗しました" : "Failed to update order"
+            );
+            // Revert optimistic update on error
+            setLocalProducts(products || []);
+          }
+        }, 500); // 500ms debounce
+
+        // Cleanup timeout if component unmounts
+        return () => clearTimeout(timeoutId);
+      } catch (error) {
+        console.error("Error reordering products:", error);
+        toast.error(
+          isJapanese ? "順序の更新に失敗しました" : "Failed to update order"
+        );
+        // Revert optimistic update on error
+        setLocalProducts(products || []);
+      } finally {
+        setIsReordering(false);
+      }
+    }
+  };
 
   if (isLoading)
     return (
@@ -78,13 +250,6 @@ export default function Products() {
         {isJapanese ? "製品が見つかりません" : "No products found"}
       </div>
     );
-
-  // Calculate pagination
-  const totalPages = Math.ceil(products.length / itemsPerPage);
-  const paginatedProducts = products.slice(
-    (page - 1) * itemsPerPage,
-    page * itemsPerPage
-  );
 
   const handleSort = (sortType: "latest") => {
     setSort(sortType);
@@ -172,6 +337,31 @@ export default function Products() {
             onChange={(e) => setSearchTitle(e.target.value)}
           />
         </div>
+        {hasUnsavedChanges && (
+          <Button
+            variant="outline"
+            onClick={() => {
+              const postIds = localProducts.map((item) => item.id);
+              reorderPosts(postIds, "cases")
+                .then(() => {
+                  setLastSavedOrder(postIds);
+                  toast.success(
+                    isJapanese
+                      ? "順序を保存しました"
+                      : "Order saved successfully"
+                  );
+                })
+                .catch(() => {
+                  toast.error(
+                    isJapanese ? "保存に失敗しました" : "Failed to save"
+                  );
+                });
+            }}
+            disabled={isReordering}
+          >
+            {isJapanese ? "順序を保存" : "Save Order"}
+          </Button>
+        )}
         <Button onClick={handleCreateNewProduct} disabled={isCreating}>
           {isCreating
             ? isJapanese
@@ -183,138 +373,106 @@ export default function Products() {
         </Button>
       </div>
 
-      <div className="border border-gray-200 rounded-sm overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50 hover:bg-gray-100">
-              <TableHead className="text-gray-900 font-semibold">ID</TableHead>
-              <TableHead className="text-gray-900 font-semibold w-48">
-                {isJapanese ? "タイトル" : "Title"}
-              </TableHead>
-              <TableHead className="text-gray-900 font-semibold">
-                {isJapanese ? "カテゴリー" : "Category"}
-              </TableHead>
-              <TableHead className="text-gray-900 font-semibold">
-                {isJapanese ? "タイプ" : "Type"}
-              </TableHead>
-              <TableHead
-                onClick={() => handleSort("latest")}
-                className="cursor-pointer text-gray-900 font-semibold hover:text-gray-700"
-              >
-                {isJapanese ? "更新日" : "Updated At"}
-                {sort === "latest" && (
-                  <ArrowDown className="inline ml-1 h-4 w-4 text-gray-600" />
-                )}
-              </TableHead>
-              <TableHead className="text-gray-900 font-semibold">
-                {isJapanese ? "操作" : "Actions"}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedProducts.length > 0 ? (
-              paginatedProducts.map((product) => (
-                <TableRow key={product.id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium text-gray-900">
-                    {product.id}
-                  </TableCell>
-                  <TableCell className="text-gray-700 max-w-48 whitespace-pre-wrap break-words">
-                    {product.title}
-                  </TableCell>
-                  <TableCell className="text-gray-700">
-                    {product.category}
-                  </TableCell>
-                  <TableCell className="text-gray-700">
-                    {isJapanese
-                      ? product.type === "cases"
-                        ? "事例"
-                        : product.type === "news"
-                        ? "ニュース"
-                        : product.type === "equipments"
-                        ? "設備"
-                        : product.type
-                      : product.type}
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {product.date || new Date(product.updatedAt || 0).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button asChild size="sm">
-                        <Link href={`/cases/${product.id}`}>
-                          {isJapanese ? "表示" : "View"}
-                        </Link>
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => openDeleteModal(product)}
-                        disabled={deletingIds.has(product.id!)}
-                      >
-                        {isJapanese ? "削除" : "Delete"}
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center">
-                  {isJapanese ? "製品が見つかりません" : "No products found"}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+      {/* Product count summary */}
+      <div className="flex justify-between items-center mb-4">
+        <div className="text-sm text-gray-600">
+          {isJapanese
+            ? `全${localProducts.length}件の製品`
+            : `${localProducts.length} total products`}
+        </div>
+        {searchTitle && (
+          <div className="text-sm text-gray-500">
+            {isJapanese
+              ? `"${searchTitle}"で検索中`
+              : `Searching for "${searchTitle}"`}
+          </div>
+        )}
       </div>
 
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationLink
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              isActive={false}
-              aria-disabled={page === 1}
-              className={`rounded-sm border-gray-200 hover:bg-gray-50 hover:text-gray-700 ${
-                page === 1 ? "pointer-events-none opacity-50" : ""
-              }`}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </PaginationLink>
-          </PaginationItem>
+      <div className="border border-gray-200 rounded-sm overflow-hidden">
+        {isReordering && (
+          <div className="bg-blue-50 border-b border-blue-200 p-2 text-center text-blue-700 text-sm">
+            {isJapanese ? "順序を更新中..." : "Updating order..."}
+          </div>
+        )}
+        {hasUnsavedChanges && !isReordering && (
+          <div className="bg-yellow-50 border-b border-yellow-200 p-2 text-center text-yellow-700 text-sm">
+            {isJapanese ? "変更を保存中..." : "Saving changes..."}
+          </div>
+        )}
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-            (pageNum) => (
-              <PaginationItem key={pageNum}>
-                <PaginationLink
-                  onClick={() => setPage(pageNum)}
-                  isActive={page === pageNum}
-                  className={`rounded-sm border-gray-200 hover:bg-gray-50 hover:text-gray-700 ${
-                    page === pageNum
-                      ? "bg-primary text-white hover:bg-primary/90 hover:text-white"
-                      : ""
-                  }`}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50 hover:bg-gray-100">
+                <TableHead className="text-gray-900 font-semibold">
+                  {isJapanese ? "ID" : "ID"}
+                </TableHead>
+                <TableHead className="text-gray-900 font-semibold">
+                  {isJapanese ? "タイトル" : "Title"}
+                </TableHead>
+                <TableHead className="text-gray-900 font-semibold">
+                  {isJapanese ? "カテゴリ" : "Category"}
+                </TableHead>
+                <TableHead className="text-gray-900 font-semibold">
+                  {isJapanese ? "タイプ" : "Type"}
+                </TableHead>
+                <TableHead className="text-gray-900 font-semibold">
+                  <div className="flex items-center gap-2">
+                    {isJapanese ? "表示順" : "Display Order"}
+                    {hasUnsavedChanges && (
+                      <div
+                        className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"
+                        title={isJapanese ? "未保存の変更" : "Unsaved changes"}
+                      />
+                    )}
+                  </div>
+                </TableHead>
+                <TableHead
+                  onClick={() => handleSort("latest")}
+                  className="cursor-pointer text-gray-900 font-semibold hover:text-gray-700"
                 >
-                  {pageNum}
-                </PaginationLink>
-              </PaginationItem>
-            )
-          )}
-
-          <PaginationItem>
-            <PaginationLink
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              isActive={false}
-              aria-disabled={page === totalPages}
-              className={`rounded-sm border-gray-200 hover:bg-gray-50 hover:text-gray-700 ${
-                page === totalPages ? "pointer-events-none opacity-50" : ""
-              }`}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </PaginationLink>
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+                  {isJapanese ? "日付" : "Date"}
+                  {sort === "latest" && (
+                    <ArrowDown className="inline ml-1 h-4 w-4 text-gray-600" />
+                  )}
+                </TableHead>
+                <TableHead className="text-gray-900 font-semibold">
+                  {isJapanese ? "操作" : "Actions"}
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {localProducts.length > 0 ? (
+                <SortableContext
+                  items={localProducts.map((product) => product.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {localProducts.map((product) => (
+                    <SortableTableRow
+                      key={product.id}
+                      product={product}
+                      isJapanese={isJapanese}
+                      deletingIds={deletingIds}
+                      openDeleteModal={openDeleteModal}
+                    />
+                  ))}
+                </SortableContext>
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center">
+                    {isJapanese ? "製品が見つかりません" : "No products found"}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DndContext>
+      </div>
 
       {/* Delete Confirmation Modal */}
       <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
@@ -325,8 +483,12 @@ export default function Products() {
             </DialogTitle>
             <DialogDescription>
               {isJapanese
-                ? `「${productToDelete?.title || ""}」を削除してもよろしいですか？この操作は元に戻せません。`
-                : `Are you sure you want to delete "${productToDelete?.title || ""}"? This action cannot be undone.`}
+                ? `「${
+                    productToDelete?.title || ""
+                  }」を削除してもよろしいですか？この操作は元に戻せません。`
+                : `Are you sure you want to delete "${
+                    productToDelete?.title || ""
+                  }"? This action cannot be undone.`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -336,9 +498,9 @@ export default function Products() {
             <Button
               variant="destructive"
               onClick={confirmDelete}
-              disabled={deletingIds.has(productToDelete?.id!)}
+              disabled={deletingIds.has(productToDelete?.id ?? 0)}
             >
-              {deletingIds.has(productToDelete?.id!)
+              {deletingIds.has(productToDelete?.id ?? 0)
                 ? isJapanese
                   ? "削除中..."
                   : "Deleting..."
